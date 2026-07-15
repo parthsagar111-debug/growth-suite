@@ -5,6 +5,7 @@ style.inject()
 if not data.is_live():
     st.markdown('<div class="gs-offline"><h2>This demo is currently offline</h2></div>', unsafe_allow_html=True)
     st.stop()
+style.sidebar()
 
 st.title("Lifecycle architect")
 st.markdown('<p class="subtitle">Describe a brand to get a stage-by-stage WhatsApp journey, grounded in real diagnosis data when available.</p>', unsafe_allow_html=True)
@@ -76,7 +77,6 @@ if result:
             )
             st.switch_page("pages/3_Experiment_Designer.py")
     with col_b:
-        st.download_button("Export PDF", data="Lifecycle Architect journey (generated via PDF.co in production)",
-                            file_name="lifecycle-journey.pdf", mime="application/pdf")
+        style.export_pdf_button(result.get("pdf_url"))
 else:
     st.info("Generate a journey to see the full dashboard.")

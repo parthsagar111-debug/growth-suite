@@ -5,6 +5,7 @@ style.inject()
 if not data.is_live():
     st.markdown('<div class="gs-offline"><h2>This demo is currently offline</h2></div>', unsafe_allow_html=True)
     st.stop()
+style.sidebar()
 
 st.title("Results & learnings")
 st.markdown('<p class="subtitle">Grade a shipped experiment against the decision rule it committed to, and keep a running log of what was learned.</p>', unsafe_allow_html=True)
@@ -52,6 +53,10 @@ with c2:
     st.plotly_chart(charts.theme_cluster(result["themes"]), use_container_width=True)
 
 style.agent_card("Pattern recognition", result["narrative"]["pattern_recognition"])
+
+col_a, col_b = st.columns([3, 1])
+with col_b:
+    style.export_pdf_button(result.get("pdf_url"))
 
 st.markdown("### Learnings log")
 for h in result["history"]:

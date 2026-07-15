@@ -17,38 +17,22 @@ if not data.is_live():
     )
     st.stop()
 
-# ── Brand context (persists across pages via session_state) ───────────
-brands = data.get_brands()
-brand_names = [b["name"] for b in brands]
-if "brand_id" not in st.session_state:
-    st.session_state.brand_id = brands[0]["id"] if brands else None
-
-with st.sidebar:
-    st.markdown("### Growth suite")
-    choice = st.selectbox("Brand", brand_names, index=0)
-    st.session_state.brand_id = next(b["id"] for b in brands if b["name"] == choice)
-    st.caption("All four tools below scope their memory to this brand.")
-    st.divider()
-    st.page_link("app.py", label="Home", icon="\U0001F3E0")
-    st.page_link("pages/1_Funnel_Diagnostics.py", label="Funnel diagnostics", icon="\U0001FA7A")
-    st.page_link("pages/2_Lifecycle_Architect.py", label="Lifecycle architect", icon="\U0001F504")
-    st.page_link("pages/3_Experiment_Designer.py", label="Experiment designer", icon="\U0001F9EA")
-    st.page_link("pages/4_Results_Learnings.py", label="Results & learnings", icon="\U0001F4CA")
+style.sidebar()
 
 st.title("Growth suite")
 st.markdown('<p class="subtitle">Diagnose a funnel, design the fix, test it, and remember what happened — all under one roof.</p>', unsafe_allow_html=True)
 
 cols = st.columns(4)
 tools = [
-    ("Funnel diagnostics", "coral", "Upload funnel metrics or order history → a diagnosed leak, seven charts, and ranked plays.", "pages/1_Funnel_Diagnostics.py"),
-    ("Lifecycle architect", "accent", "Describe a brand → a stage-by-stage WhatsApp journey with tone scoring and copy variants.", "pages/2_Lifecycle_Architect.py"),
-    ("Experiment designer", "amber", "Type a hypothesis → a real z-test spec, guardrails, and a decision rule.", "pages/3_Experiment_Designer.py"),
-    ("Results & learnings", "teal", "Grade a shipped experiment against its own decision rule and log what was learned.", "pages/4_Results_Learnings.py"),
+    ("Funnel diagnostics", "coral", "Step 1 · Diagnose", "Upload funnel metrics or order history → a diagnosed leak, seven charts, and ranked plays.", "pages/1_Funnel_Diagnostics.py"),
+    ("Lifecycle architect", "accent", "Step 2 · Design", "Describe a brand → a stage-by-stage WhatsApp journey with tone scoring and copy variants.", "pages/2_Lifecycle_Architect.py"),
+    ("Experiment designer", "amber", "Step 3 · Test", "Type a hypothesis → a real z-test spec, guardrails, and a decision rule.", "pages/3_Experiment_Designer.py"),
+    ("Results & learnings", "teal", "Step 4 · Learn", "Grade a shipped experiment against its own decision rule and log what was learned.", "pages/4_Results_Learnings.py"),
 ]
-for col, (name, kind, desc, page) in zip(cols, tools):
+for col, (name, kind, step_label, desc, page) in zip(cols, tools):
     with col:
         with st.container(border=True):
-            style.badge(kind.capitalize(), kind)
+            style.badge(step_label, kind)
             st.markdown(f"**{name}**")
             st.caption(desc)
             st.page_link(page, label="Open →")

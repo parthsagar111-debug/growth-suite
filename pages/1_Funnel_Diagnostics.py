@@ -5,6 +5,7 @@ style.inject()
 if not data.is_live():
     st.markdown('<div class="gs-offline"><h2>This demo is currently offline</h2></div>', unsafe_allow_html=True)
     st.stop()
+style.sidebar()
 
 st.title("Funnel diagnostics")
 st.markdown('<p class="subtitle">Upload funnel metrics or order history to get a diagnosed leak, a full analysis dashboard, and ranked plays.</p>', unsafe_allow_html=True)
@@ -71,7 +72,6 @@ if result:
             st.session_state["imported_diagnosis"] = result
             st.switch_page("pages/2_Lifecycle_Architect.py")
     with col_b:
-        st.download_button("Export PDF", data="Funnel Diagnostics report (generated via PDF.co in production)",
-                            file_name="funnel-diagnosis.pdf", mime="application/pdf")
+        style.export_pdf_button(result.get("pdf_url"))
 else:
     st.info("Run a diagnosis to see the full dashboard.")

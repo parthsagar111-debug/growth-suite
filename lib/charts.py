@@ -88,12 +88,19 @@ def benchmark_bar(benchmark):
 def journey_timeline(stages):
     fig = go.Figure()
     days = [s["day"] for s in stages]
-    fig.add_trace(go.Scatter(x=days, y=[1] * len(days), mode="markers+text",
-                              marker=dict(size=22, color=ACCENT),
-                              text=[s["name"] for s in stages], textposition="top center"))
+    # Alternate labels above/below the point so closely-spaced stages
+    # (e.g. day 0 and day 14) don't collide into unreadable overlap.
+    positions = ["top center" if i % 2 == 0 else "bottom center" for i in range(len(days))]
     fig.add_trace(go.Scatter(x=days, y=[1] * len(days), mode="lines",
                               line=dict(color=MUTED, dash="dot"), showlegend=False))
-    fig.update_yaxes(visible=False, range=[0.5, 1.8])
+    for i, (d, s) in enumerate(zip(days, stages)):
+        fig.add_trace(go.Scatter(
+            x=[d], y=[1], mode="markers+text", showlegend=False,
+            marker=dict(size=20, color=ACCENT),
+            text=[s["name"]], textposition=positions[i],
+            textfont=dict(size=11),
+        ))
+    fig.update_yaxes(visible=False, range=[0.3, 1.7])
     fig.update_xaxes(title="Day")
     return _apply(fig, "Journey timeline")
 

@@ -5,6 +5,7 @@ style.inject()
 if not data.is_live():
     st.markdown('<div class="gs-offline"><h2>This demo is currently offline</h2></div>', unsafe_allow_html=True)
     st.stop()
+style.sidebar()
 
 st.title("Experiment designer")
 st.markdown('<p class="subtitle">Type a hypothesis to get a real z-test spec, guardrails, and a decision rule — committed before the test runs.</p>', unsafe_allow_html=True)
@@ -80,7 +81,6 @@ if result:
         if st.button("Go to Results & Learnings →"):
             st.switch_page("pages/4_Results_Learnings.py")
     with col_b:
-        st.download_button("Export PDF", data="Experiment Designer spec (generated via PDF.co in production)",
-                            file_name="experiment-spec.pdf", mime="application/pdf")
+        style.export_pdf_button(result.get("pdf_url"))
 else:
     st.info("Generate a spec to see the full dashboard.")
