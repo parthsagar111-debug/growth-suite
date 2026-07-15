@@ -36,7 +36,17 @@ PALETTE = {
 
 CSS = """
 <style>
-#MainMenu, footer, header {visibility: hidden;}
+#MainMenu, footer {visibility: hidden;}
+/* The native Streamlit header bar (data-testid=stHeader) is kept visible
+   but restyled into a slim glass strip below — its own contents
+   (hamburger menu, "Deploy" button) are hidden via #MainMenu above, so
+   what's left is just a clean, branded top edge instead of a hard cut. */
+div[data-testid="stHeader"] {
+    background: rgba(248, 250, 252, 0.85) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid #e2e8f0 !important;
+}
 /* Hide Streamlit's auto-generated page nav — we render one consistent
    custom nav via style.sidebar() instead, so the sidebar never shows
    two competing menus. */
@@ -63,13 +73,13 @@ div[data-testid="stVerticalBlockBorderWrapper"] {border-radius: 10px !important;
    grid of real divs instead of st.columns()+st.metric(), so the exact
    card visual (grid, shadow, padding) is fully our own rather than
    inherited from Streamlit's built-in metric widget. */
-.kpi-container {
+.kpi-row-layout {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.25rem;
     margin-bottom: 2rem;
 }
-.kpi-card {
+.kpi-card-custom {
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 12px;
@@ -86,8 +96,28 @@ div[data-testid="stHorizontalBlock"] {
     border: 1px solid #e2e8f0 !important;
     border-radius: 12px !important;
     padding: 1.25rem !important;
-    align-items: flex-end !important;
-    margin-bottom: 1rem !important;
+    gap: 1.5rem !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+    margin-bottom: 1.5rem !important;
+}
+/* Bottom-align each column's own content (label + widget) independently,
+   rather than aligning the row as a single flex cross-axis block — this
+   is what actually keeps a text label and a selectbox lined up at their
+   baseline when neighboring columns have captions of different heights. */
+div[data-testid="stColumn"] {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+}
+
+/* Widget labels as small uppercase micro-labels, matching the KPI card
+   label treatment, instead of Streamlit's plain default text. */
+div[data-testid="stWidgetLabel"] p {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.03em !important;
+    color: #64748b !important;
 }
 
 /* Soften rigid native element inputs */
@@ -95,6 +125,16 @@ div[data-baseweb="select"], div[data-baseweb="input"] {
     border-radius: 6px !important;
     border: 1px solid #e2e8f0 !important;
     background-color: #ffffff !important;
+}
+/* Buttons get the same rounded, softened treatment — but NOT a forced
+   background-color, since that would flatten primary CTA buttons
+   (type="primary") to white along with everything else. */
+.stButton button {
+    border-radius: 6px !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+}
+.stButton button:active {
+    transform: scale(0.98);
 }
 
 /* st.metric still appears in a couple of places outside kpi_row (e.g.
@@ -289,13 +329,13 @@ def kpi_row(items):
             else:
                 delta_html = f'<div style="color:#64748b; font-size:13px; font-weight:600; margin-top:4px;">{delta}</div>'
         cards.append(
-            '<div class="kpi-card">'
+            '<div class="kpi-card-custom">'
             f'<div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.02em; color:#64748b;">{item["label"]}</div>'
             f'<div style="font-size:28px; font-weight:700; color:#0f172a; margin-top:6px;">{item["value"]}</div>'
             f'{delta_html}'
             '</div>'
         )
-    st.markdown(f'<div class="kpi-container">{"".join(cards)}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="kpi-row-layout">{"".join(cards)}</div>', unsafe_allow_html=True)
 
 
 _NO_PDF = object()
