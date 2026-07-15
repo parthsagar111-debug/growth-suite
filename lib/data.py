@@ -20,6 +20,7 @@ demo data instead of erroring for a stray visitor.
 """
 import os
 import json
+import concurrent.futures
 import requests
 import streamlit as st
 from dotenv import load_dotenv
@@ -35,6 +36,29 @@ WEBHOOKS = {
 
 SUPABASE_URL = os.getenv("SUPABASE_URL", "")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
+
+# Every Supabase call in this module is routed through this so a slow or
+# unreachable project can never hang a page indefinitely — supabase-py's
+# own client-level timeout options vary across versions, so this enforces
+# a hard wall-clock cap at the application layer instead of trusting the
+# library's defaults.
+_SUPABASE_TIMEOUT_SECS = 10
+_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=4, thread_name_prefix="supabase-call")
+
+
+def _guarded(fn, default, label):
+    """Runs `fn` with a hard timeout; returns `default` (and surfaces a
+    warning) on timeout or any other failure instead of letting an
+    unreachable backend freeze the page."""
+    try:
+        future = _EXECUTOR.submit(fn)
+        return future.result(timeout=_SUPABASE_TIMEOUT_SECS)
+    except concurrent.futures.TimeoutError:
+        st.warning(f"{label} timed out after {_SUPABASE_TIMEOUT_SECS}s — showing demo data instead.")
+        return default
+    except Exception as e:
+        st.warning(f"{label} failed ({e}) — showing demo data instead.")
+        return default
 
 
 def _supabase():
@@ -55,20 +79,19 @@ def is_live() -> bool:
     sb = _supabase()
     if sb is None:
         return os.getenv("GROWTH_SUITE_LIVE", "true").lower() != "false"
-    try:
-        res = sb.table("app_settings").select("value").eq("key", "is_live").single().execute()
-        return bool(res.data["value"])
-    except Exception:
-        return True
+    return _guarded(
+        lambda: bool(sb.table("app_settings").select("value").eq("key", "is_live").single().execute().data["value"]),
+        default=True, label="Kill-switch check",
+    )
 
 
 def set_live(value: bool):
     sb = _supabase()
     if sb is not None:
-        try:
-            sb.table("app_settings").update({"value": value}).eq("key", "is_live").execute()
-        except Exception:
-            pass
+        _guarded(
+            lambda: sb.table("app_settings").update({"value": value}).eq("key", "is_live").execute(),
+            default=None, label="Kill-switch update",
+        )
     is_live.clear()
 
 
@@ -77,11 +100,10 @@ def get_brands():
     sb = _supabase()
     if sb is None:
         return SAMPLE_BRANDS
-    try:
-        res = sb.table("brands").select("*").order("created_at").execute()
-        return res.data or SAMPLE_BRANDS
-    except Exception:
-        return SAMPLE_BRANDS
+    return _guarded(
+        lambda: (sb.table("brands").select("*").order("created_at").execute().data or SAMPLE_BRANDS),
+        default=SAMPLE_BRANDS, label="Loading brands",
+    )
 
 
 def create_brand(name: str, category: str = "Other", discount_stance: str = "discount-light") -> str | None:
@@ -89,19 +111,30 @@ def create_brand(name: str, category: str = "Other", discount_stance: str = "dis
     'Rename & Save Workspace' nudge — the user gets to see a custom
     upload's full dashboard first, and only commits a name afterward if
     they want the workspace to persist and show up in the brand dropdown
-    on future visits."""
+    on future visits.
+
+    Validates the name client-side (non-empty, sane length) before ever
+    reaching Supabase — the caller already checks for a blank name, but
+    a function that writes to the database shouldn't rely on callers to
+    have done that correctly."""
     sb = _supabase()
-    if sb is None or not name.strip():
+    name = (name or "").strip()
+    if sb is None or not name:
         return None
-    try:
+    if len(name) > 120:
+        st.warning("Workspace name is too long (120 characters max).")
+        return None
+
+    def _insert():
         res = sb.table("brands").insert({
-            "name": name.strip(), "category": category, "discount_stance": discount_stance,
+            "name": name, "category": category, "discount_stance": discount_stance,
         }).execute()
-        get_brands.clear()
         return res.data[0]["id"] if res.data else None
-    except Exception as e:
-        st.warning(f"Couldn't save this workspace ({e}).")
-        return None
+
+    new_id = _guarded(_insert, default=None, label="Saving workspace")
+    if new_id:
+        get_brands.clear()
+    return new_id
 
 
 def get_experiments(brand_id: str):
@@ -110,16 +143,15 @@ def get_experiments(brand_id: str):
     sb = _supabase()
     if sb is None or not brand_id:
         return []
-    try:
-        res = (sb.table("experiments")
-                 .select("id,hypothesis,created_at")
-                 .eq("brand_id", brand_id)
-                 .order("created_at", desc=True)
-                 .limit(20)
-                 .execute())
-        return res.data or []
-    except Exception:
-        return []
+    return _guarded(
+        lambda: (sb.table("experiments")
+                   .select("id,hypothesis,created_at")
+                   .eq("brand_id", brand_id)
+                   .order("created_at", desc=True)
+                   .limit(20)
+                   .execute().data or []),
+        default=[], label="Loading experiments",
+    )
 
 
 def save_experiment_result(experiment_id: str, lift_pp: float, optout_pp: float,
@@ -127,11 +159,26 @@ def save_experiment_result(experiment_id: str, lift_pp: float, optout_pp: float,
     """Persist a graded outcome to experiment_results. This is the write that
     closes the memory loop — without it, Results & Learnings' dashboard and
     Experiment Designer's Similar-Experiment Analyst only ever see seed data,
-    never anything a real user actually grades."""
+    never anything a real user actually grades.
+
+    Validates inputs before writing: verdict must be one of the three
+    the schema's check constraint allows, and the metrics must actually
+    be numbers — number_input widgets guarantee this client-side, but a
+    write function shouldn't assume its caller always will.
+    """
     sb = _supabase()
     if sb is None or not experiment_id:
         return False
+    if verdict not in ("SHIP", "KILL", "EXTEND"):
+        st.warning(f"Invalid verdict '{verdict}' — not saved.")
+        return False
     try:
+        lift_pp, optout_pp, support_delta = float(lift_pp), float(optout_pp), int(support_delta)
+    except (TypeError, ValueError):
+        st.warning("Grading inputs weren't numeric — not saved.")
+        return False
+
+    def _insert():
         sb.table("experiment_results").insert({
             "experiment_id": experiment_id,
             "actual_metrics": {
@@ -143,20 +190,26 @@ def save_experiment_result(experiment_id: str, lift_pp: float, optout_pp: float,
             "takeaway": takeaway,
         }).execute()
         return True
-    except Exception as e:
-        st.warning(f"Couldn't save this grade to memory ({e}) — the verdict below wasn't persisted.")
-        return False
+
+    return _guarded(_insert, default=False, label="Saving grade")
 
 
 def call_workflow(tool: str, payload: dict) -> dict:
-    """Call the n8n webhook for `tool`; fall back to sample data if
-    the webhook isn't configured or the app is toggled off."""
+    """Call the n8n webhook for `tool`; fall back to sample data if the
+    webhook isn't configured, the app is toggled off, or the call fails.
+    Connect and read timeouts are set separately (5s / 45s) rather than
+    one combined value, so a slow DNS lookup or a dead connection fails
+    fast instead of burning the same budget as a slow-but-alive workflow."""
     url = WEBHOOKS.get(tool, "")
     if url and is_live():
         try:
-            r = requests.post(url, json=payload, timeout=45)
+            r = requests.post(url, json=payload, timeout=(5, 45))
             r.raise_for_status()
             return r.json()
+        except requests.exceptions.Timeout:
+            st.warning("Live workflow call timed out — showing demo data instead.")
+        except requests.exceptions.ConnectionError:
+            st.warning("Couldn't reach the live workflow — showing demo data instead.")
         except Exception as e:
             st.warning(f"Live workflow call failed ({e}) — showing demo data instead.")
     return SAMPLE_RESULTS.get(tool, {})

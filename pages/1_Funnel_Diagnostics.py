@@ -13,8 +13,9 @@ st.markdown('<p class="subtitle">Upload funnel metrics or order history to get a
 
 # ── Horizontal control strip ────────────────────────────────────────────
 # Brand/workspace, data-source mode, and the page's own filters all live
-# in one row at the top instead of a stacked vertical form.
-st.markdown('<div class="gs-control-strip">', unsafe_allow_html=True)
+# in one row at the top instead of a stacked vertical form. The card look
+# comes from the global stHorizontalBlock rule in style.py, not a manual
+# div wrapper — see the note at the top of that file for why.
 sc1, sc2, sc3, sc4 = st.columns([1.3, 1.3, 1, 1])
 with sc1:
     mode = st.selectbox("Data source", ["Sample data (demo)", "Metrics snapshot", "Order-level data"])
@@ -81,10 +82,16 @@ elif mode == "Metrics snapshot":
         "fn_purchase": fn_purchase, "fn_repeat": fn_repeat,
     })
 
-st.markdown('</div>', unsafe_allow_html=True)
-
-run = st.button("Run diagnosis →", type="primary",
-                 disabled=(mode == "Order-level data" and computed_stats is None))
+# Guard against submitting with nothing to scope the analysis to (no
+# brand selected and not in a ghost/draft run) or an upload mode with no
+# parsed data yet — both would otherwise reach call_workflow with a
+# meaningless payload.
+missing_brand = not locked and scoped_brand_id is None
+run = st.button(
+    "Run diagnosis →", type="primary",
+    disabled=(mode == "Order-level data" and computed_stats is None) or missing_brand,
+    help="Select a brand first." if missing_brand else None,
+)
 
 if run:
     mode_key = {"Sample data (demo)": "sample", "Metrics snapshot": "metrics_snapshot",
@@ -93,9 +100,14 @@ if run:
     if computed_stats is not None:
         payload["computed_stats"] = computed_stats
     with st.spinner("Running the deterministic engine, then 7 AI agents in sequence…"):
-        st.session_state["funnel_result"] = data.call_workflow("funnel_diagnostics", payload)
+        result_value = data.call_workflow("funnel_diagnostics", payload)
+    style.remember_result("funnel_result", result_value, scoped_brand_id)
     st.session_state["funnel_is_ghost"] = locked
 
+# State-bug guard: if the brand/workspace selection has changed since
+# the cached result was produced, drop the stale result instead of
+# silently showing one brand's dashboard under a different brand's name.
+style.stale_guard("funnel_result", scoped_brand_id)
 result = st.session_state.get("funnel_result")
 if result:
     # ── Post-analysis workspace nudge ───────────────────────────────────
@@ -105,11 +117,13 @@ if result:
     stats = result["computed_stats"]
 
     st.markdown("### Executive scorecard")
-    m1, m2, m3 = st.columns(3)
-    m1.metric("M1 → M2 retention", f"{stats['m1_m2_retention']*100:.0f}%",
-              delta=f"{(stats['m1_m2_retention']*100 - stats['benchmark']['category_typical']):.0f}pp vs benchmark")
-    m2.metric("Discount-dependent repeats", f"{stats['discount_dependency']*100:.0f}%")
-    m3.metric("Median days to 2nd order", f"{stats['time_to_2nd_order_median_days']}")
+    retention_gap = stats['m1_m2_retention'] * 100 - stats['benchmark']['category_typical']
+    style.kpi_row([
+        {"label": "M1 → M2 retention", "value": f"{stats['m1_m2_retention']*100:.0f}%",
+         "delta": f"{abs(retention_gap):.0f}pp vs benchmark", "positive": retention_gap >= 0},
+        {"label": "Discount-dependent repeats", "value": f"{stats['discount_dependency']*100:.0f}%"},
+        {"label": "Median days to 2nd order", "value": f"{stats['time_to_2nd_order_median_days']}"},
+    ])
 
     st.markdown("### Full analysis dashboard")
     if stats.get("_funnel_note"):

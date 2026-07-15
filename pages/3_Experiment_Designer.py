@@ -15,7 +15,7 @@ if imported:
     style.flow_banner(f"Imported hypothesis from Lifecycle Architect: {imported}")
 
 # ── Horizontal control strip ────────────────────────────────────────────
-st.markdown('<div class="gs-control-strip">', unsafe_allow_html=True)
+# Card look comes from the global stHorizontalBlock rule in style.py.
 sc1, sc2, sc3, sc4 = st.columns([1.3, 1, 1, 1.2])
 with sc1:
     brand_id = style.brand_selector(label="Brand / workspace")
@@ -28,32 +28,38 @@ with sc4:
 hyp = st.text_area("Hypothesis", value=imported or
                     "Sending a day-28 \"reorder in 30 seconds\" WhatsApp nudge (no discount) to "
                     "at-risk customers will lift M2 repeat-purchase rate.")
-st.markdown('</div>', unsafe_allow_html=True)
 
-run = st.button("Generate spec →", type="primary")
+missing = brand_id is None or not hyp.strip()
+run = st.button(
+    "Generate spec →", type="primary", disabled=missing,
+    help=("Select a brand first." if brand_id is None else "Enter a hypothesis first.") if missing else None,
+)
 
 if run:
     with st.spinner("Computing the z-test spec, then running 5 AI agents on guardrails and risk…"):
-        st.session_state["experiment_result"] = data.call_workflow(
+        result_value = data.call_workflow(
             "experiment_designer",
             {"brand_id": brand_id, "hypothesis": hyp,
              "baseline": baseline, "mde": mde, "traffic": traffic},
         )
+    style.remember_result("experiment_result", result_value, brand_id)
     # n8n's Memory: Write already persisted this spec to Supabase before responding —
     # grab its id (matched on hypothesis text) so Results & Learnings can grade it later.
     recent = data.get_experiments(brand_id)
     if recent and recent[0].get("hypothesis") == hyp:
         st.session_state["latest_experiment_id"] = recent[0]["id"]
 
+style.stale_guard("experiment_result", brand_id)
 result = st.session_state.get("experiment_result")
 if result:
     spec = result["spec"]
 
     st.markdown("### Executive scorecard")
-    m1, m2, m3 = st.columns(3)
-    m1.metric("Sample size per arm", f"{spec['sample_size_per_arm']:,}")
-    m2.metric("Est. duration", f"{spec['duration_days']} days")
-    m3.metric("Confidence / power", f"{int(spec['confidence']*100)}% / {int(spec['power']*100)}%")
+    style.kpi_row([
+        {"label": "Sample size per arm", "value": f"{spec['sample_size_per_arm']:,}"},
+        {"label": "Est. duration", "value": f"{spec['duration_days']} days"},
+        {"label": "Confidence / power", "value": f"{int(spec['confidence']*100)}% / {int(spec['power']*100)}%"},
+    ])
 
     st.markdown("### Full analysis dashboard")
     c1, c2 = st.columns(2)

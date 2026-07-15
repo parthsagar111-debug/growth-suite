@@ -51,11 +51,45 @@ def sample_order_csv_bytes() -> bytes:
     return buf.getvalue().encode("utf-8")
 
 
+MAX_UPLOAD_ROWS = 200_000  # sanity cap — a real order export shouldn't need more for this tool
+
+
 def _validate_orders(df: pd.DataFrame):
+    """Fails loudly and specifically instead of letting a malformed
+    upload reach the math functions below, where a bad value would
+    surface as a cryptic pandas/statistics traceback instead of a
+    message that tells the user what to fix."""
+    if df.empty:
+        raise ValueError("That CSV has no rows.")
+    if len(df) > MAX_UPLOAD_ROWS:
+        raise ValueError(f"That CSV has {len(df):,} rows — this tool caps uploads at {MAX_UPLOAD_ROWS:,}.")
+
     missing = [c for c in ORDER_CSV_COLUMNS if c not in df.columns]
     if missing:
         raise ValueError(f"Missing required column(s): {', '.join(missing)}. "
                           f"Expected: {', '.join(ORDER_CSV_COLUMNS)}")
+
+    bad_dates = pd.to_datetime(df["order_date"], errors="coerce").isna()
+    if bad_dates.any():
+        raise ValueError(f"{bad_dates.sum()} row(s) have an unparseable order_date "
+                          f"(expected YYYY-MM-DD). First bad row: {df.index[bad_dates][0] + 2}.")
+
+    bad_order_numbers = pd.to_numeric(df["order_number"], errors="coerce").isna()
+    if bad_order_numbers.any():
+        raise ValueError(f"{bad_order_numbers.sum()} row(s) have a non-numeric order_number.")
+    if (pd.to_numeric(df["order_number"]) < 1).any():
+        raise ValueError("order_number must be 1 or greater (1 = first order).")
+
+    bad_revenue = pd.to_numeric(df["revenue"], errors="coerce").isna()
+    if bad_revenue.any():
+        raise ValueError(f"{bad_revenue.sum()} row(s) have a non-numeric revenue.")
+
+    if (pd.to_numeric(df["order_number"]) == 1).sum() == 0:
+        raise ValueError("No row has order_number == 1 — there's no first-order cohort to "
+                          "measure retention against.")
+
+    if df["customer_id"].isna().any():
+        raise ValueError("Some rows are missing customer_id.")
 
 
 def compute_stats_from_orders(df: pd.DataFrame) -> dict:

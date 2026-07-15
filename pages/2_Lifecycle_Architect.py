@@ -15,7 +15,7 @@ if imported:
     style.flow_banner(f"Imported diagnosis: {imported['diagnosed_leak']}")
 
 # ── Horizontal control strip ────────────────────────────────────────────
-st.markdown('<div class="gs-control-strip">', unsafe_allow_html=True)
+# Card look comes from the global stHorizontalBlock rule in style.py.
 sc1, sc2, sc3 = st.columns([1.3, 1, 1])
 with sc1:
     brand_id = style.brand_selector(label="Brand / workspace")
@@ -28,18 +28,20 @@ import_box = st.text_area(
     value=imported["diagnosed_leak"] if imported else "",
     placeholder="Paste a Funnel Diagnostics result here, or send it directly from that tool.",
 )
-st.markdown('</div>', unsafe_allow_html=True)
 
-run = st.button("Generate journey →", type="primary")
+run = st.button("Generate journey →", type="primary", disabled=brand_id is None,
+                 help="Select a brand first." if brand_id is None else None)
 
 if run:
     with st.spinner("Computing trigger-day cadence, then writing + scoring copy with 6 AI agents…"):
-        st.session_state["lifecycle_result"] = data.call_workflow(
+        result_value = data.call_workflow(
             "lifecycle_architect",
             {"brand_id": brand_id, "category": category,
              "discount_stance": discount_stance, "diagnosis": import_box},
         )
+    style.remember_result("lifecycle_result", result_value, brand_id)
 
+style.stale_guard("lifecycle_result", brand_id)
 result = st.session_state.get("lifecycle_result")
 if result:
     stages = result["stages"]
@@ -48,10 +50,11 @@ if result:
     convert_rate = (funnel[-1]["value"] / funnel[0]["value"] * 100) if funnel and funnel[0]["value"] else 0
 
     st.markdown("### Executive scorecard")
-    m1, m2, m3 = st.columns(3)
-    m1.metric("Journey stages", len(stages))
-    m2.metric("Expected engagement → convert", f"{convert_rate:.1f}%")
-    m3.metric("Average warmth score", f"{avg_warmth:.2f}")
+    style.kpi_row([
+        {"label": "Journey stages", "value": str(len(stages))},
+        {"label": "Expected engagement → convert", "value": f"{convert_rate:.1f}%"},
+        {"label": "Average warmth score", "value": f"{avg_warmth:.2f}"},
+    ])
 
     st.markdown("### Full analysis dashboard")
     c1, c2 = st.columns(2)

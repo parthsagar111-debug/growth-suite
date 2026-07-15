@@ -11,11 +11,14 @@ st.title("Results & learnings")
 st.markdown('<p class="subtitle">Grade a shipped experiment against the decision rule it committed to, and keep a running log of what was learned.</p>', unsafe_allow_html=True)
 
 # ── Horizontal control strip ────────────────────────────────────────────
-st.markdown('<div class="gs-control-strip">', unsafe_allow_html=True)
+# Card look comes from the global stHorizontalBlock rule in style.py.
 sc1, _ = st.columns([1.3, 3])
 with sc1:
     brand_id = style.brand_selector(label="Brand / workspace")
-st.markdown('</div>', unsafe_allow_html=True)
+
+# State-bug guard: a grade verdict shown for one brand shouldn't linger
+# on screen after switching to a different brand.
+style.stale_guard("latest_verdict", brand_id)
 
 with st.container(border=True):
     st.markdown("### Grade an outcome")
@@ -60,7 +63,7 @@ if grade:
         takeaway = (f"Lift of {lift}pp is directionally positive but under the 3pp bar, with opt-out at "
                     f"{optout}pp. Not enough signal yet to call it either way — extend before deciding.")
     saved = data.save_experiment_result(experiment_id, lift, optout, support, verdict, takeaway)
-    st.session_state["latest_verdict"] = (verdict, lift, optout, takeaway, saved)
+    style.remember_result("latest_verdict", (verdict, lift, optout, takeaway, saved), brand_id)
 
 if "latest_verdict" in st.session_state:
     verdict, lift, optout, takeaway, saved = st.session_state["latest_verdict"]
@@ -85,10 +88,12 @@ win_rate = round(dist.get("SHIP", 0) / total_graded * 100) if total_graded else 
 cum_impact = result["cumulative_impact_pp"][-1] if result["cumulative_impact_pp"] else 0
 
 st.markdown("### Executive scorecard")
-m1, m2, m3 = st.columns(3)
-m1.metric("Experiments graded", total_graded)
-m2.metric("Win rate", f"{win_rate}%")
-m3.metric("Cumulative lift", f"{cum_impact}pp")
+style.kpi_row([
+    {"label": "Experiments graded", "value": str(total_graded)},
+    {"label": "Win rate", "value": f"{win_rate}%"},
+    {"label": "Cumulative lift", "value": f"{cum_impact}pp",
+     "delta": ("gaining" if cum_impact > 0 else "flat"), "positive": cum_impact > 0 if cum_impact != 0 else None},
+])
 
 c1, c2 = st.columns(2)
 with c1:

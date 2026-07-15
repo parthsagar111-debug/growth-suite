@@ -6,6 +6,19 @@ specifically for the three-state SHIP/EXTEND/KILL vocabulary, where a
 neutral "pending decision" color reads more honestly than reusing Slate
 (which already means "disabled/muted" elsewhere in this system) or
 Emerald/Crimson (which are already claimed by SHIP/KILL).
+
+A note on how the horizontal control strips actually get their card
+look: an earlier version of this file wrapped each control strip in a
+hand-rolled `<div class="gs-control-strip">...</div>` pair, opened in
+one st.markdown() call and closed in another, with real Streamlit
+widgets in between. That doesn't work — st.markdown() mounts its own
+isolated element; widgets rendered after it are siblings in the DOM,
+not children, so the div never actually wrapped anything. It was inert
+styling that happened to do nothing. The correct way to card a row of
+widgets is to target the real container Streamlit already renders
+around every st.columns() call (`div[data-testid="stHorizontalBlock"]`)
+— that div genuinely contains its children, so CSS on it genuinely
+wraps them. That's what the global rule below does instead.
 """
 import streamlit as st
 
@@ -31,9 +44,13 @@ CSS = """
 
 html, body, [class*="css"] {font-family: Helvetica, Arial, sans-serif !important;}
 
-/* Data-dense SaaS spacing — Streamlit's defaults are built for a blog
-   post, not a workspace someone opens twenty times a day. */
-.block-container {padding-top: 1rem !important; padding-bottom: 2rem; max-width: 1120px;}
+/* Strip heavy margins & set premium workspace background */
+.block-container {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+    max-width: 1280px !important;
+    background-color: #f8fafc !important;
+}
 div[data-testid="stVerticalBlock"] > div {gap: 0.6rem;}
 h1 {font-size: 24px !important; font-weight: 700 !important; margin-bottom: 2px !important; color:#0f172a;}
 h2 {font-size: 17px !important; font-weight: 600 !important;}
@@ -42,19 +59,53 @@ h3 {font-size: 13px !important; font-weight: 700 !important; text-transform:uppe
 .subtitle {color: #475569; font-size: 13.5px; margin-bottom: 1rem;}
 div[data-testid="stVerticalBlockBorderWrapper"] {border-radius: 10px !important;}
 
-/* Executive scorecards — st.metric gets a card shell; Streamlit already
-   renders the colored ↑/↓ delta arrow natively, so we don't reinvent it. */
+/* Premium B2B KPI Scorecard Grid — used by style.kpi_row(), a plain CSS
+   grid of real divs instead of st.columns()+st.metric(), so the exact
+   card visual (grid, shadow, padding) is fully our own rather than
+   inherited from Streamlit's built-in metric widget. */
+.kpi-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+.kpi-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+/* Force horizontal control strips into a sleek, bordered white card
+   layout — this is the real fix for the div-wrap bug described above.
+   Every st.columns() row in the app (control strips, chart pairs,
+   guardrail rows, grading inputs) picks this up automatically. */
+div[data-testid="stHorizontalBlock"] {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 1.25rem !important;
+    align-items: flex-end !important;
+    margin-bottom: 1rem !important;
+}
+
+/* Soften rigid native element inputs */
+div[data-baseweb="select"], div[data-baseweb="input"] {
+    border-radius: 6px !important;
+    border: 1px solid #e2e8f0 !important;
+    background-color: #ffffff !important;
+}
+
+/* st.metric still appears in a couple of places outside kpi_row (e.g.
+   third-party components); keep it card-styled too so it never looks
+   like a bare, un-themed widget if it shows up. */
 div[data-testid="stMetric"] {
   background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 16px;
 }
 div[data-testid="stMetricValue"] {font-size: 26px !important; font-weight: 700 !important; color:#0f172a;}
 div[data-testid="stMetricLabel"] {font-size: 12px !important; color:#64748b !important; font-weight:600;
   text-transform:uppercase; letter-spacing:0.02em;}
-
-/* Horizontal control strip — the row of selectors every tool page opens
-   with (brand, mode, and whatever page-specific filters apply). */
-.gs-control-strip {background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px;
-  padding:14px 16px 4px 16px; margin-bottom:14px;}
 
 .gs-badge {display:inline-block; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; margin-bottom:6px;}
 .gs-badge-teal {background:#ecfdf5; color:#059669;}
@@ -85,19 +136,10 @@ div[data-testid="stMetricLabel"] {font-size: 12px !important; color:#64748b !imp
 .gs-empty {text-align:center; color:#64748b; font-size:13px; padding:2.5rem 1rem;
   border:1px dashed #e2e8f0; border-radius:10px; margin-top:0.5rem;}
 
-/* "Next playbook action" — the one place every page's routing button
-   and PDF export live, instead of scattered blue banners + orphan buttons. */
-.gs-next-action {background:#fff; border:1px solid #e2e8f0; border-left:3px solid #4f46e5;
-  border-radius:10px; padding:14px 16px; margin-top:1.2rem;}
-
-/* Journey stage cards — left-aligned day indicator instead of a plain
-   two-column split, closer to a real step-tracker component. */
 .gs-step-day {display:inline-flex; align-items:center; justify-content:center; min-width:52px;
   height:52px; border-radius:10px; background:#eef2ff; color:#4f46e5; font-weight:700;
   font-size:13px; text-align:center; line-height:1.15;}
 
-/* Ghost-identity workspace placeholder — visually distinct "draft" state
-   for the brand selector when a custom upload/snapshot is in progress. */
 .gs-ghost-brand {display:flex; align-items:center; gap:8px; background:#f8fafc; border:1px dashed #cbd5e1;
   border-radius:8px; padding:9px 12px; font-size:14px; color:#475569; font-weight:500;}
 </style>
@@ -122,10 +164,8 @@ NAV_PAGES = [
 
 
 def sidebar():
-    """Navigation only. The brand/workspace selector used to live here
-    too, but it's now part of each page's own horizontal control strip
-    (see brand_selector()) — a scoping choice belongs next to the other
-    filters that define the current analysis, not buried in the sidebar."""
+    """Navigation only — the brand/workspace selector lives in each
+    page's own horizontal control strip instead (see brand_selector())."""
     with st.sidebar:
         st.markdown("### Growth suite")
         st.caption("Diagnose → Design → Test → Learn")
@@ -135,12 +175,10 @@ def sidebar():
 
 
 def brand_selector(label="Brand / workspace", locked=False, locked_text="✨ My Custom Brand"):
-    """Renders inline (not in the sidebar) as one column of a page's
-    horizontal control strip. When `locked`, swaps to a disabled ghost
-    placeholder instead of the real dropdown — used while a custom
-    upload/snapshot is active and hasn't been named yet, so the user
-    gets straight to the analysis instead of filling out a brand form
-    first. Returns the resolved brand_id, or None while locked."""
+    """Renders inline as one column of a page's horizontal control
+    strip. When `locked`, swaps to a disabled ghost placeholder instead
+    of the real dropdown. Returns the resolved brand_id, or None while
+    locked or if no brands exist yet."""
     from . import data as _data
 
     if locked:
@@ -163,9 +201,7 @@ def brand_selector(label="Brand / workspace", locked=False, locked_text="✨ My 
 
 def workspace_save_nudge(default_name="My custom brand", category_options=None, on_saved=None):
     """The 'Rename & Save Workspace' banner — shown after a ghost/draft
-    workspace has produced a real result. Lets the user commit a name to
-    a permanent brand row *after* they've already seen the value, instead
-    of gating the analysis behind a naming form up front."""
+    workspace has produced a real result."""
     from . import data as _data
 
     st.markdown(
@@ -181,16 +217,19 @@ def workspace_save_nudge(default_name="My custom brand", category_options=None, 
                                      ["D2C · Beauty & personal care", "D2C · Home", "D2C · Food & bev", "Other"],
                                      key="ghost_save_category")
         if st.button("Save as a brand →", type="primary"):
-            new_id = _data.create_brand(name, category)
-            if new_id:
-                st.session_state["brand_id"] = new_id
-                st.session_state["ghost_brand_id"] = new_id
-                st.session_state["ghost_saved_name"] = name
-                if on_saved:
-                    on_saved()
-                st.rerun()
+            if not name.strip():
+                st.error("Give the workspace a name first.")
             else:
-                st.error("Couldn't save — Supabase isn't reachable right now.")
+                new_id = _data.create_brand(name, category)
+                if new_id:
+                    st.session_state["brand_id"] = new_id
+                    st.session_state["ghost_brand_id"] = new_id
+                    st.session_state["ghost_saved_name"] = name
+                    if on_saved:
+                        on_saved()
+                    st.rerun()
+                else:
+                    st.error("Couldn't save — Supabase isn't reachable right now.")
 
 
 def badge(text, kind="accent"):
@@ -210,9 +249,6 @@ def empty_state(text):
 
 
 def status_pill(text, kind="muted"):
-    """Compact single-line status, e.g. '✓ 0 Anomalies Flagged' — used
-    instead of rendering a whole empty container when an array is empty
-    but that fact is still worth a one-line acknowledgement."""
     st.markdown(f'<span class="gs-pill gs-pill-{kind}">{text}</span>', unsafe_allow_html=True)
 
 
@@ -233,15 +269,42 @@ def agent_card(label, text):
     )
 
 
+def kpi_row(items):
+    """Executive scorecard grid. `items` is a list of dicts:
+    {"label": str, "value": str, "delta": str (optional), "positive": bool|None}.
+    `positive=True` renders a green ↑, `False` a red ↓, `None`/omitted
+    renders the delta text in neutral slate with no arrow. Built as one
+    single st.markdown() call (no split div-wrap), so unlike the old
+    control-strip bug, this one actually renders as a real card grid."""
+    cards = []
+    for item in items:
+        delta = item.get("delta")
+        positive = item.get("positive")
+        delta_html = ""
+        if delta:
+            if positive is True:
+                delta_html = f'<div style="color:#059669; font-size:13px; font-weight:600; margin-top:4px;">↑ {delta}</div>'
+            elif positive is False:
+                delta_html = f'<div style="color:#dc2626; font-size:13px; font-weight:600; margin-top:4px;">↓ {delta}</div>'
+            else:
+                delta_html = f'<div style="color:#64748b; font-size:13px; font-weight:600; margin-top:4px;">{delta}</div>'
+        cards.append(
+            '<div class="kpi-card">'
+            f'<div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.02em; color:#64748b;">{item["label"]}</div>'
+            f'<div style="font-size:28px; font-weight:700; color:#0f172a; margin-top:6px;">{item["value"]}</div>'
+            f'{delta_html}'
+            '</div>'
+        )
+    st.markdown(f'<div class="kpi-container">{"".join(cards)}</div>', unsafe_allow_html=True)
+
+
 _NO_PDF = object()
 
 
 def next_action(text, button_label=None, button_page=None, button_state=None, pdf_url=_NO_PDF, extra=None):
     """Unified 'Next Playbook Action' container — every tool page ends
     with exactly one of these instead of a loose flow_banner + scattered
-    buttons. `button_state` is a (key, value) tuple stashed in
-    session_state right before switching pages, e.g. handing a result
-    forward to the next tool in the chain."""
+    buttons."""
     with st.container(border=True):
         st.markdown('<div class="gs-agent-label">Next playbook action</div>', unsafe_allow_html=True)
         st.markdown(text)
@@ -258,3 +321,22 @@ def next_action(text, button_label=None, button_page=None, button_state=None, pd
                 export_pdf_button(pdf_url)
         if extra:
             extra()
+
+
+# ── State-bug guard ──────────────────────────────────────────────────
+# A cached result (e.g. st.session_state["funnel_result"]) used to keep
+# showing a stale dashboard after the brand/workspace selector changed,
+# because nothing ever invalidated it — the page would happily display
+# Brand A's diagnosis while the dropdown read "Brand B". remember_result
+# tags a cached result with the brand it was computed for; stale_guard
+# clears it the moment that tag stops matching the current selection.
+def remember_result(key, value, brand_id):
+    st.session_state[key] = value
+    st.session_state[f"{key}__brand"] = brand_id
+
+
+def stale_guard(key, brand_id):
+    tracker = f"{key}__brand"
+    if key in st.session_state and st.session_state.get(tracker) != brand_id:
+        del st.session_state[key]
+        st.session_state.pop(tracker, None)
