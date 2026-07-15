@@ -10,12 +10,19 @@ style.sidebar()
 st.title("Results & learnings")
 st.markdown('<p class="subtitle">Grade a shipped experiment against the decision rule it committed to, and keep a running log of what was learned.</p>', unsafe_allow_html=True)
 
+# ── Horizontal control strip ────────────────────────────────────────────
+st.markdown('<div class="gs-control-strip">', unsafe_allow_html=True)
+sc1, _ = st.columns([1.3, 3])
+with sc1:
+    brand_id = style.brand_selector(label="Brand / workspace")
+st.markdown('</div>', unsafe_allow_html=True)
+
 with st.container(border=True):
     st.markdown("### Grade an outcome")
     st.caption("This step is deliberately not AI — the verdict is computed by comparing your actual "
                "numbers against the thresholds already agreed to in Experiment Designer.")
 
-    experiments = data.get_experiments(st.session_state.get("brand_id"))
+    experiments = data.get_experiments(brand_id)
     if experiments:
         ids = [e["id"] for e in experiments]
         labels = {e["id"]: f"{e['hypothesis'][:70]}{'…' if len(e['hypothesis']) > 70 else ''} · {str(e['created_at'])[:10]}"
@@ -26,7 +33,7 @@ with st.container(border=True):
                                       index=default_index, format_func=lambda x: labels[x])
     else:
         experiment_id = None
-        st.caption("No experiments found for this brand yet — generate one in Experiment Designer first.")
+        style.status_pill("✓ No experiments for this brand yet — generate one in Experiment Designer first", "muted")
 
     c1, c2, c3 = st.columns(3)
     with c1:
@@ -63,33 +70,58 @@ if "latest_verdict" in st.session_state:
                      "committed decision rule — no model involved in this call.")
         style.agent_card("Takeaway", takeaway)
         if saved:
-            st.caption("Saved to this brand's memory — reflected in the dashboard below and available "
-                       "to Experiment Designer's Similar-Experiment Analyst on future runs.")
+            style.status_pill("✓ Saved to this brand's memory", "ok")
         else:
-            st.caption("Not saved — Supabase wasn't reachable, so this verdict only applies to this session.")
+            style.status_pill("⚠ Not saved — Supabase unreachable, session-only", "warn")
 
 st.markdown("### Full analysis dashboard")
 with st.spinner("Pulling this brand's experiment history and looking for patterns…"):
-    result = data.call_workflow("results_learnings", {"brand_id": st.session_state.get("brand_id")})
+    result = data.call_workflow("results_learnings", {"brand_id": brand_id})
+
+history = result["history"]
+dist = result["verdict_distribution"]
+total_graded = sum(dist.values())
+win_rate = round(dist.get("SHIP", 0) / total_graded * 100) if total_graded else 0
+cum_impact = result["cumulative_impact_pp"][-1] if result["cumulative_impact_pp"] else 0
+
+st.markdown("### Executive scorecard")
+m1, m2, m3 = st.columns(3)
+m1.metric("Experiments graded", total_graded)
+m2.metric("Win rate", f"{win_rate}%")
+m3.metric("Cumulative lift", f"{cum_impact}pp")
+
 c1, c2 = st.columns(2)
 with c1:
-    st.plotly_chart(charts.win_rate_over_time(result["history"]), use_container_width=True)
-    st.plotly_chart(charts.cumulative_impact(result["cumulative_impact_pp"]), use_container_width=True)
+    if history:
+        st.plotly_chart(charts.win_rate_over_time(history), use_container_width=True)
+        st.plotly_chart(charts.cumulative_impact(result["cumulative_impact_pp"]), use_container_width=True)
+    else:
+        style.status_pill("✓ No graded history yet for this brand", "muted")
 with c2:
-    st.plotly_chart(charts.verdict_distribution(result["verdict_distribution"]), use_container_width=True)
-    st.plotly_chart(charts.theme_cluster(result["themes"]), use_container_width=True)
+    if total_graded:
+        st.plotly_chart(charts.verdict_distribution(dist), use_container_width=True)
+    else:
+        style.status_pill("✓ No verdicts to distribute yet", "muted")
+    if result["themes"]:
+        st.plotly_chart(charts.theme_cluster(result["themes"]), use_container_width=True)
+    else:
+        style.status_pill("✓ No recurring themes yet — need more graded experiments", "muted")
 
 style.agent_card("Pattern recognition", result["narrative"]["pattern_recognition"])
 
-col_a, col_b = st.columns([3, 1])
-with col_b:
-    style.export_pdf_button(result.get("pdf_url"))
-
 st.markdown("### Learnings log")
-if result["history"]:
-    for h in result["history"]:
+if history:
+    for h in history:
         with st.container(border=True):
             style.badge(h["verdict"], style.VERDICT_COLOR.get(h["verdict"], "accent"))
             st.caption(f"{h['date']} · {h['brand']} · lift {h['lift_pp']}pp")
 else:
     style.empty_state("No graded experiments for this brand yet.")
+
+style.next_action(
+    "Loop back to a fresh diagnosis to keep the flywheel turning — every grade here sharpens the "
+    "next Experiment Designer run's Similar-Experiment Analyst.",
+    button_label="Start a new diagnosis →",
+    button_page="pages/1_Funnel_Diagnostics.py",
+    pdf_url=result.get("pdf_url"),
+)

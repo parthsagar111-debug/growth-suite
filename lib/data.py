@@ -84,6 +84,26 @@ def get_brands():
         return SAMPLE_BRANDS
 
 
+def create_brand(name: str, category: str = "Other", discount_stance: str = "discount-light") -> str | None:
+    """Promotes a ghost/draft workspace to a real brand row. Used by the
+    'Rename & Save Workspace' nudge — the user gets to see a custom
+    upload's full dashboard first, and only commits a name afterward if
+    they want the workspace to persist and show up in the brand dropdown
+    on future visits."""
+    sb = _supabase()
+    if sb is None or not name.strip():
+        return None
+    try:
+        res = sb.table("brands").insert({
+            "name": name.strip(), "category": category, "discount_stance": discount_stance,
+        }).execute()
+        get_brands.clear()
+        return res.data[0]["id"] if res.data else None
+    except Exception as e:
+        st.warning(f"Couldn't save this workspace ({e}).")
+        return None
+
+
 def get_experiments(brand_id: str):
     """Experiments for a brand, most recent first — lets Results & Learnings
     attach a grade to a specific experiment row instead of grading in a vacuum."""

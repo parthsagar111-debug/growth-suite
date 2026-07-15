@@ -1,27 +1,52 @@
 """Plotly chart builders. Every function returns a go.Figure so pages
-can just st.plotly_chart(fn(...), use_container_width=True)."""
+can just st.plotly_chart(fn(...), use_container_width=True).
+
+Corporate palette: Indigo (primary), Emerald (positive), Slate (neutral),
+Crimson (negative/drop-off). Amber is a fifth accent reserved for the
+three-state SHIP/EXTEND/KILL vocabulary."""
 import plotly.graph_objects as go
 
 ACCENT, TEAL, CORAL, AMBER, GREEN, RED, MUTED = (
-    "#185fa5", "#0f6e56", "#993c1d", "#854f0b", "#3b6d11", "#a32d2d", "#8c8a82")
+    "#4f46e5", "#059669", "#dc2626", "#b45309", "#059669", "#dc2626", "#64748b")
+
+GRIDLINE = "#e2e8f0"
 
 BASE_LAYOUT = dict(
     margin=dict(l=40, r=20, t=30, b=40), height=320,
     paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-    font=dict(family="Helvetica, Arial, sans-serif", size=12, color="#1c1b18"),
+    font=dict(family="Helvetica, Arial, sans-serif", size=12, color="#0f172a"),
+    legend=dict(bgcolor="rgba(0,0,0,0)"),
 )
 
 
 def _apply(fig, title=""):
-    fig.update_layout(**BASE_LAYOUT, title=dict(text=title, font=dict(size=13)))
+    """Applies the shared layout, plus the 'clean horizontal grid lines
+    only' rule: no vertical gridlines, no chart-junk axis lines, no
+    marker borders — a SaaS dashboard look rather than a default Plotly
+    figure with every gridline switched on."""
+    fig.update_layout(**BASE_LAYOUT, title=dict(text=title, font=dict(size=13, color="#334155")))
+    fig.update_yaxes(showgrid=True, gridcolor=GRIDLINE, gridwidth=1, zeroline=False, showline=False)
+    fig.update_xaxes(showgrid=False, zeroline=False, showline=False)
+    fig.update_traces(marker_line_width=0, selector=dict(type="bar"))
     return fig
+
+
+def detect_anomalies(trend):
+    """Points more than 25% off the mean — shared by the chart and by
+    pages that just need the count for a compact status pill instead of
+    rendering the whole chart's flagged-point logic twice."""
+    y = [t["value"] for t in trend]
+    if not y:
+        return []
+    mean = sum(y) / len(y)
+    return [t for t in trend if abs(t["value"] - mean) > mean * 0.25]
 
 
 # ── Funnel Diagnostics ───────────────────────────────────────────────
 def funnel_dropoff(stages):
     fig = go.Figure(go.Funnel(
         y=[s["stage"] for s in stages], x=[s["value"] for s in stages],
-        marker=dict(color=[ACCENT] * len(stages))))
+        marker=dict(color=[ACCENT] * len(stages), line=dict(width=0))))
     return _apply(fig, "Funnel drop-off by stage")
 
 
@@ -31,22 +56,22 @@ def cohort_heatmap(cohorts):
     z = [[c[k] for k in cols] for c in cohorts]
     fig = go.Figure(go.Heatmap(
         z=z, x=["M1", "M2", "M3", "M4"], y=months,
-        colorscale=[[0, "#fcebeb"], [0.5, "#f0997b"], [1, "#0f6e56"]],
-        text=[[f"{v}%" for v in row] for row in z], texttemplate="%{text}"))
+        colorscale=[[0, "#fef2f2"], [0.5, "#fde68a"], [1, "#059669"]],
+        text=[[f"{v}%" for v in row] for row in z], texttemplate="%{text}",
+        xgap=3, ygap=3))
     return _apply(fig, "Cohort retention heatmap")
 
 
 def trend_with_anomalies(trend):
     x = [t["period"] for t in trend]
     y = [t["value"] for t in trend]
-    mean = sum(y) / len(y)
-    anomaly_x = [xi for xi, yi in zip(x, y) if abs(yi - mean) > mean * 0.25]
-    anomaly_y = [yi for yi in y if abs(yi - mean) > mean * 0.25]
+    flagged = detect_anomalies(trend)
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=x, y=y, mode="lines+markers", line=dict(color=ACCENT), name="Metric"))
-    fig.add_trace(go.Scatter(x=anomaly_x, y=anomaly_y, mode="markers",
-                              marker=dict(color=RED, size=11, symbol="circle-open", line=dict(width=2)),
-                              name="Flagged"))
+    if flagged:
+        fig.add_trace(go.Scatter(x=[t["period"] for t in flagged], y=[t["value"] for t in flagged], mode="markers",
+                                  marker=dict(color=CORAL, size=11, symbol="circle-open", line=dict(width=2)),
+                                  name="Flagged"))
     return _apply(fig, "Trend with flagged anomalies")
 
 
@@ -62,7 +87,7 @@ def discount_dependency(dependency_pct):
     fig = go.Figure(go.Pie(
         labels=["Discount-dependent repeats", "Full-price repeats"],
         values=[dependency_pct * 100, (1 - dependency_pct) * 100],
-        marker=dict(colors=[CORAL, TEAL]), hole=0.55))
+        marker=dict(colors=[CORAL, TEAL], line=dict(width=0)), hole=0.55))
     return _apply(fig, "Discount dependency")
 
 
@@ -79,7 +104,7 @@ def time_to_second_order(median_days):
 def benchmark_bar(benchmark):
     fig = go.Figure(go.Bar(
         x=["You", "Category typical"], y=[benchmark["you"], benchmark["category_typical"]],
-        marker_color=[CORAL, MUTED]))
+        marker_color=[ACCENT, MUTED]))
     fig.update_yaxes(title="M1→M2 retention %")
     return _apply(fig, "Category benchmark")
 
@@ -88,8 +113,6 @@ def benchmark_bar(benchmark):
 def journey_timeline(stages):
     fig = go.Figure()
     days = [s["day"] for s in stages]
-    # Alternate labels above/below the point so closely-spaced stages
-    # (e.g. day 0 and day 14) don't collide into unreadable overlap.
     positions = ["top center" if i % 2 == 0 else "bottom center" for i in range(len(days))]
     fig.add_trace(go.Scatter(x=days, y=[1] * len(days), mode="lines",
                               line=dict(color=MUTED, dash="dot"), showlegend=False))
@@ -108,7 +131,7 @@ def journey_timeline(stages):
 def engagement_funnel(funnel):
     fig = go.Figure(go.Funnel(
         y=[f["stage"] for f in funnel], x=[f["value"] for f in funnel],
-        marker=dict(color=[TEAL] * len(funnel))))
+        marker=dict(color=[TEAL] * len(funnel), line=dict(width=0))))
     return _apply(fig, "Expected engagement funnel")
 
 
@@ -145,11 +168,8 @@ def power_curve(curve):
 
 
 def sample_size_tradeoff(power_curve):
-    # power_curve is the real, computed 80%-power curve: [{"mde": pp, "n": size}, ...]
     mdes = [c["mde"] for c in power_curve]
     n80_vals = [c["n"] for c in power_curve]
-    # 90% power needs a larger sample; the standard z-ratio for going from
-    # 80%->90% power at fixed alpha/effect is a constant multiplier (~1.34).
     n90_vals = [int(v * 1.34) for v in n80_vals]
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=mdes, y=n80_vals, mode="lines+markers", name="80% power", line=dict(color=ACCENT)))
@@ -186,12 +206,6 @@ def historical_outcomes(history):
 # ── Results & Learnings ──────────────────────────────────────────────
 def win_rate_over_time(history):
     dates = [h["date"] for h in history]
-    cum_ships = []
-    ships = 0
-    for h in history:
-        if h["verdict"] == "SHIP":
-            ships += 1
-        cum_ships.append(ships / len(cum_ships or [1]) if cum_ships else (1 if h["verdict"] == "SHIP" else 0))
     win_rate = []
     ship_count = 0
     for i, h in enumerate(history, start=1):
@@ -208,7 +222,7 @@ def verdict_distribution(dist):
     labels = [k for k, v in dist.items() if v > 0]
     values = [v for v in dist.values() if v > 0]
     fig = go.Figure(go.Pie(labels=labels, values=values,
-                            marker=dict(colors=[colors[l] for l in labels]), hole=0.55))
+                            marker=dict(colors=[colors[l] for l in labels], line=dict(width=0)), hole=0.55))
     return _apply(fig, "Verdict distribution")
 
 
