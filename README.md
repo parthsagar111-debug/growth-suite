@@ -40,6 +40,7 @@ lib/
   style.py                 shared design system
   data.py                  webhook caller + demo-mode sample data
   charts.py                every chart, plotly
+  ingest.py                order-level CSV parsing + metrics-snapshot form → real computed_stats
 sql/
   schema.sql
   seed.sql                 two fictional brands, ~2 months of fabricated history
@@ -49,6 +50,15 @@ n8n/
   funnel-diagnostics.json   importable, full reference workflow
   BUILD_GUIDE.md            how to build the other three from this pattern
 ```
+
+## Real data in, not just demo data
+
+Funnel Diagnostics accepts real input two ways, both computed deterministically in `lib/ingest.py` — no AI involved in turning your data into numbers:
+
+- **Order-level data** — download the sample CSV for the expected columns (`customer_id, order_date, order_number, channel, revenue, discount_applied`), upload your own, and pandas computes real M1→M2 retention, cohort tables, discount dependency, and per-channel retention from it. Upper-funnel steps (Visit, Add to cart, Checkout) aren't derivable from order data alone — that funnel chart only shows Purchase → Repeat (M2) in this mode, and says so.
+- **Metrics snapshot** — already know your headline numbers? Type them into the form instead of exporting a file. Cohort and weekly-trend detail become flat estimates off those headline numbers rather than fabricated detail, and the dashboard says so.
+
+Either way, the real `computed_stats` flow through to n8n and the AI agents reason on your actual numbers, not the fixture. Demo mode (no upload) still uses the fixture so the whole chain stays exercisable with zero setup.
 
 ## Design principles carried through
 
