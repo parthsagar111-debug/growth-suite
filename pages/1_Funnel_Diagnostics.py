@@ -21,10 +21,11 @@ with st.container(border=True):
     run = st.button("Run diagnosis →", type="primary")
 
 if run:
-    st.session_state["funnel_result"] = data.call_workflow(
-        "funnel_diagnostics",
-        {"brand_id": st.session_state.get("brand_id"), "mode": mode, "segment": segment, "period": period},
-    )
+    with st.spinner("Running the deterministic engine, then 7 AI agents in sequence…"):
+        st.session_state["funnel_result"] = data.call_workflow(
+            "funnel_diagnostics",
+            {"brand_id": st.session_state.get("brand_id"), "mode": mode, "segment": segment, "period": period},
+        )
 
 result = st.session_state.get("funnel_result")
 if result:
@@ -60,18 +61,17 @@ if result:
     st.markdown("### Ranked plays")
     for i, play in enumerate(result["ranked_plays"], start=1):
         with st.container(border=True):
-            impact_kind = {"High": "teal", "Medium": "amber", "Low": "coral"}.get(play["impact"], "accent")
-            style.badge(f"{play['impact']} impact", impact_kind)
+            style.badge(f"{play['impact']} impact", style.IMPACT_COLOR.get(play["impact"], "accent"))
             st.markdown(f"**{i}. {play['title']}**")
             st.caption(play["rationale"])
 
     col_a, col_b = st.columns([3, 1])
     with col_a:
-        style.flow_banner("Send this diagnosis to Lifecycle Architect so the journey is grounded in this brand's real M1→M2 cliff, not a category guess.")
+        style.flow_banner("Ground the next tool in this brand's real M1→M2 cliff instead of a category guess.")
         if st.button("Send diagnosis to Lifecycle Architect →"):
             st.session_state["imported_diagnosis"] = result
             st.switch_page("pages/2_Lifecycle_Architect.py")
     with col_b:
         style.export_pdf_button(result.get("pdf_url"))
 else:
-    st.info("Run a diagnosis to see the full dashboard.")
+    style.empty_state("Run a diagnosis above to see the full dashboard.")

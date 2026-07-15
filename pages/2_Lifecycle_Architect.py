@@ -29,11 +29,12 @@ with st.container(border=True):
     run = st.button("Generate journey →", type="primary")
 
 if run:
-    st.session_state["lifecycle_result"] = data.call_workflow(
-        "lifecycle_architect",
-        {"brand_id": st.session_state.get("brand_id"), "category": category,
-         "discount_stance": discount_stance, "diagnosis": import_box},
-    )
+    with st.spinner("Computing trigger-day cadence, then writing + scoring copy with 6 AI agents…"):
+        st.session_state["lifecycle_result"] = data.call_workflow(
+            "lifecycle_architect",
+            {"brand_id": st.session_state.get("brand_id"), "category": category,
+             "discount_stance": discount_stance, "diagnosis": import_box},
+        )
 
 result = st.session_state.get("lifecycle_result")
 if result:
@@ -79,4 +80,4 @@ if result:
     with col_b:
         style.export_pdf_button(result.get("pdf_url"))
 else:
-    st.info("Generate a journey to see the full dashboard.")
+    style.empty_state("Fill in the brand input above and generate a journey to see the full dashboard.")

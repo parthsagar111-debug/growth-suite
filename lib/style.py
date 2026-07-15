@@ -19,12 +19,25 @@ CSS = """
    custom nav (with the brand selector) via style.sidebar() instead,
    so the sidebar never shows two competing menus. */
 [data-testid="stSidebarNav"] {display: none;}
+
+/* The chart font was already Helvetica (see charts.BASE_LAYOUT) but the
+   surrounding page was left on Streamlit's default font, so headers and
+   captions visually mismatched the charts sitting right next to them. */
+html, body, [class*="css"] {font-family: Helvetica, Arial, sans-serif !important;}
+
 .block-container {padding-top: 2rem; max-width: 980px;}
 h1 {font-size: 26px !important; font-weight: 700 !important; margin-bottom: 2px !important;}
 h2 {font-size: 18px !important; font-weight: 600 !important;}
 h3 {font-size: 15px !important; font-weight: 600 !important;}
 .subtitle {color: #5f5e58; font-size: 14px; margin-bottom: 1.5rem;}
 div[data-testid="stVerticalBlockBorderWrapper"] {border-radius: 12px !important;}
+
+/* Metrics get the same bordered-card treatment as everything else in
+   the design system instead of sitting bare. */
+div[data-testid="stMetric"] {
+  background:#fff; border:1px solid #e3e1da; border-radius:12px; padding:14px 16px;
+}
+
 .gs-badge {display:inline-block; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; margin-bottom:6px;}
 .gs-badge-teal {background:#e1f5ee; color:#0f6e56;}
 .gs-badge-coral {background:#faece7; color:#993c1d;}
@@ -36,8 +49,25 @@ div[data-testid="stVerticalBlockBorderWrapper"] {border-radius: 12px !important;
 .gs-agent-label {font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#8c8a82; margin-bottom:4px;}
 .gs-stage-msg {background:#faf9f6; border:1px solid #e3e1da; border-radius:8px; padding:10px 12px; font-size:13px; margin-top:6px;}
 .gs-offline {text-align:center; padding: 4rem 1rem; color:#5f5e58;}
+
+/* Zone callouts (guardrail safe/kill zones) — same teal/coral vocabulary
+   as SHIP/KILL badges everywhere else, instead of Streamlit's default
+   green/red which reads as a different, unrelated color language. */
+.gs-zone {font-size:13px; font-weight:600; padding:4px 0;}
+.gs-zone-safe {color:#0f6e56;}
+.gs-zone-kill {color:#993c1d;}
+
+/* A styled empty-state, replacing Streamlit's default blue st.info box
+   so "nothing here yet" still looks like part of this design system. */
+.gs-empty {text-align:center; color:#8c8a82; font-size:13px; padding:2.5rem 1rem;
+  border:1px dashed #e3e1da; border-radius:12px; margin-top:0.5rem;}
 </style>
 """
+
+# Shared color vocabulary — was previously copy-pasted (and drifting)
+# across three separate page files.
+VERDICT_COLOR = {"SHIP": "teal", "KILL": "coral", "EXTEND": "amber"}
+IMPACT_COLOR = {"High": "teal", "Medium": "amber", "Low": "coral"}
 
 def inject():
     st.set_page_config(page_title="Growth Suite", page_icon="\U0001F4C8", layout="wide")
@@ -46,7 +76,7 @@ def inject():
 
 NAV_PAGES = [
     ("app.py", "Home", "\U0001F3E0"),
-    ("pages/1_Funnel_Diagnostics.py", "Funnel diagnostics", "\U0001FA82"),
+    ("pages/1_Funnel_Diagnostics.py", "Funnel diagnostics", "\U0001FA7A"),
     ("pages/2_Lifecycle_Architect.py", "Lifecycle architect", "\U0001F504"),
     ("pages/3_Experiment_Designer.py", "Experiment designer", "\U0001F9EA"),
     ("pages/4_Results_Learnings.py", "Results & learnings", "\U0001F4CA"),
@@ -87,6 +117,16 @@ def badge(text, kind="accent"):
 
 def flow_banner(text):
     st.markdown(f'<div class="gs-flow-banner">→ {text}</div>', unsafe_allow_html=True)
+
+
+def zone(label, kind="safe"):
+    """Safe/kill-zone text in the app's own teal/coral vocabulary,
+    instead of Streamlit's default :green[]/:red[] markdown colors."""
+    st.markdown(f'<div class="gs-zone gs-zone-{kind}">{label}</div>', unsafe_allow_html=True)
+
+
+def empty_state(text):
+    st.markdown(f'<div class="gs-empty">{text}</div>', unsafe_allow_html=True)
 
 def export_pdf_button(pdf_url, label="Export PDF"):
     """A real link to the PDF.co-generated file when the tool ran live;

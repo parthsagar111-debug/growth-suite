@@ -29,11 +29,17 @@ with st.container(border=True):
     run = st.button("Generate spec →", type="primary")
 
 if run:
-    st.session_state["experiment_result"] = data.call_workflow(
-        "experiment_designer",
-        {"brand_id": st.session_state.get("brand_id"), "hypothesis": hyp,
-         "baseline": baseline, "mde": mde, "traffic": traffic},
-    )
+    with st.spinner("Computing the z-test spec, then running 5 AI agents on guardrails and risk…"):
+        st.session_state["experiment_result"] = data.call_workflow(
+            "experiment_designer",
+            {"brand_id": st.session_state.get("brand_id"), "hypothesis": hyp,
+             "baseline": baseline, "mde": mde, "traffic": traffic},
+        )
+    # n8n's Memory: Write already persisted this spec to Supabase before responding —
+    # grab its id (matched on hypothesis text) so Results & Learnings can grade it later.
+    recent = data.get_experiments(st.session_state.get("brand_id"))
+    if recent and recent[0].get("hypothesis") == hyp:
+        st.session_state["latest_experiment_id"] = recent[0]["id"]
 
 result = st.session_state.get("experiment_result")
 if result:
@@ -65,22 +71,24 @@ if result:
             st.markdown(f"**{g['metric']}**")
             st.caption(g["why"])
             gc1, gc2 = st.columns(2)
-            gc1.markdown(f":green[Safe zone: {g['safe_zone']}]")
-            gc2.markdown(f":red[Kill zone: {g['kill_zone']}]")
+            with gc1:
+                style.zone(f"Safe zone: {g['safe_zone']}", "safe")
+            with gc2:
+                style.zone(f"Kill zone: {g['kill_zone']}", "kill")
 
     st.markdown("### Decision rule — committed pre-test")
     dr = result["decision_rule"]
     with st.container(border=True):
-        style.badge("SHIP", "teal"); st.caption(dr["ship"])
-        style.badge("EXTEND", "amber"); st.caption(dr["extend"])
-        style.badge("KILL", "coral"); st.caption(dr["kill"])
+        for verdict, text in [("SHIP", dr["ship"]), ("EXTEND", dr["extend"]), ("KILL", dr["kill"])]:
+            style.badge(verdict, style.VERDICT_COLOR[verdict])
+            st.caption(text)
 
     col_a, col_b = st.columns([3, 1])
     with col_a:
-        style.flow_banner("Once this experiment ships, grade the real outcome against this decision rule in Results & Learnings.")
+        style.flow_banner("Grade the real outcome against this decision rule once the test ships.")
         if st.button("Go to Results & Learnings →"):
             st.switch_page("pages/4_Results_Learnings.py")
     with col_b:
         style.export_pdf_button(result.get("pdf_url"))
 else:
-    st.info("Generate a spec to see the full dashboard.")
+    style.empty_state("Enter a hypothesis above and generate a spec to see the full dashboard.")

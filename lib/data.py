@@ -84,6 +84,50 @@ def get_brands():
         return SAMPLE_BRANDS
 
 
+def get_experiments(brand_id: str):
+    """Experiments for a brand, most recent first — lets Results & Learnings
+    attach a grade to a specific experiment row instead of grading in a vacuum."""
+    sb = _supabase()
+    if sb is None or not brand_id:
+        return []
+    try:
+        res = (sb.table("experiments")
+                 .select("id,hypothesis,created_at")
+                 .eq("brand_id", brand_id)
+                 .order("created_at", desc=True)
+                 .limit(20)
+                 .execute())
+        return res.data or []
+    except Exception:
+        return []
+
+
+def save_experiment_result(experiment_id: str, lift_pp: float, optout_pp: float,
+                            support_delta: int, verdict: str, takeaway: str) -> bool:
+    """Persist a graded outcome to experiment_results. This is the write that
+    closes the memory loop — without it, Results & Learnings' dashboard and
+    Experiment Designer's Similar-Experiment Analyst only ever see seed data,
+    never anything a real user actually grades."""
+    sb = _supabase()
+    if sb is None or not experiment_id:
+        return False
+    try:
+        sb.table("experiment_results").insert({
+            "experiment_id": experiment_id,
+            "actual_metrics": {
+                "lift_pp": lift_pp,
+                "opt_out_delta_pp": optout_pp,
+                "support_ticket_delta": support_delta,
+            },
+            "verdict": verdict,
+            "takeaway": takeaway,
+        }).execute()
+        return True
+    except Exception as e:
+        st.warning(f"Couldn't save this grade to memory ({e}) — the verdict below wasn't persisted.")
+        return False
+
+
 def call_workflow(tool: str, payload: dict) -> dict:
     """Call the n8n webhook for `tool`; fall back to sample data if
     the webhook isn't configured or the app is toggled off."""
