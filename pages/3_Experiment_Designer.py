@@ -7,7 +7,7 @@ if not data.is_live():
     st.stop()
 style.sidebar()
 
-st.title("Experiment designer")
+st.title("Experiment Designer")
 st.markdown('<p class="subtitle">Type a hypothesis to get a real z-test spec, guardrails, and a decision rule — committed before the test runs.</p>', unsafe_allow_html=True)
 
 imported = st.session_state.pop("imported_hypothesis", None)

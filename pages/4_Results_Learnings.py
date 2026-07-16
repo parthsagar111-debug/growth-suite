@@ -7,7 +7,7 @@ if not data.is_live():
     st.stop()
 style.sidebar()
 
-st.title("Results & learnings")
+st.title("Results & Learnings")
 st.markdown('<p class="subtitle">Grade a shipped experiment against the decision rule it committed to, and keep a running log of what was learned.</p>', unsafe_allow_html=True)
 
 # ── Horizontal control strip ────────────────────────────────────────────

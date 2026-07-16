@@ -336,23 +336,23 @@ def inject():
 
 
 NAV_PAGES = [
-    ("app.py", "Home", "\U0001F3E0"),
-    ("pages/1_Funnel_Diagnostics.py", "Funnel diagnostics", "\U0001FA7A"),
-    ("pages/2_Lifecycle_Architect.py", "Lifecycle architect", "\U0001F504"),
-    ("pages/3_Experiment_Designer.py", "Experiment designer", "\U0001F9EA"),
-    ("pages/4_Results_Learnings.py", "Results & learnings", "\U0001F4CA"),
+    ("app.py", "Overview"),
+    ("pages/1_Funnel_Diagnostics.py", "Funnel Diagnostics"),
+    ("pages/2_Lifecycle_Architect.py", "Lifecycle Architect"),
+    ("pages/3_Experiment_Designer.py", "Experiment Designer"),
+    ("pages/4_Results_Learnings.py", "Results & Learnings"),
 ]
 
 
 def sidebar():
     """Navigation only — the brand/workspace selector lives in each
-    page's own horizontal control strip instead (see brand_selector())."""
+    page's own horizontal control strip instead (see brand_selector()).
+    Matches the reference mockup exactly: wordmark, then nav links
+    directly underneath — no tagline caption, no divider, no icons."""
     with st.sidebar:
-        st.markdown("### Growth suite")
-        st.caption("Diagnose → Design → Test → Learn")
-        st.divider()
-        for page, label, icon in NAV_PAGES:
-            st.page_link(page, label=label, icon=icon)
+        st.markdown("### GrowthSuite")
+        for page, label in NAV_PAGES:
+            st.page_link(page, label=label)
 
 
 def brand_selector(label="Scope Memory Context", locked=False, locked_text="✨ My Custom Brand"):

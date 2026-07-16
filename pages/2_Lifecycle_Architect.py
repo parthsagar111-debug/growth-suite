@@ -7,7 +7,7 @@ if not data.is_live():
     st.stop()
 style.sidebar()
 
-st.title("Lifecycle architect")
+st.title("Lifecycle Architect")
 st.markdown('<p class="subtitle">Describe a brand to get a stage-by-stage WhatsApp journey, grounded in real diagnosis data when available.</p>', unsafe_allow_html=True)
 
 imported = st.session_state.pop("imported_diagnosis", None)

@@ -8,27 +8,27 @@ if not data.is_live():
     st.stop()
 style.sidebar()
 
-st.title("Funnel diagnostics")
+st.title("Funnel Diagnostics")
 st.markdown('<p class="subtitle">Upload funnel metrics or order history to get a diagnosed leak, a full analysis dashboard, and ranked plays.</p>', unsafe_allow_html=True)
 
 MODE_OPTIONS = ["Sample Demo", "Metrics Snapshot", "Order-Level"]
+# The mockup doesn't expose a "Period" control at all — it isn't part of
+# the reference design's control strip, so it's dropped from the visible
+# UI entirely (was previously its own column, which also pushed the Run
+# button onto a second row). Kept alive as a silent default so the n8n
+# payload shape is unchanged.
+PERIOD_DEFAULT = "Last 90 days"
 
 # ── Connected control strip + upload drawer ─────────────────────────────
 # One real st.container(border=True) — brand/workspace, data-source mode,
-# and the page's own filters share a top row; the Run button gets its own
-# row right below (still inside the same card) rather than a 5th column,
-# because a 5-column row this packed reliably wraps at typical viewport
-# widths — Streamlit gives each stColumn a hard minimum width, and once
-# the row's total minimum exceeds the container, the last column drops
-# to its own full-width line instead of shrinking. Two rows avoids that.
-# The mode toggle also gets a deliberately wide first column: unlike the
-# mockup's plain flex row (which just sizes to content), st.columns()
-# uses fixed proportional widths regardless of what's inside them, so a
-# 3-option segmented control needs real column width or its own pills
-# wrap onto separate lines — that's what the "Data Source Mode" three
-# stacked buttons in the live screenshot actually was.
+# segment, and the Run button all sit in a single row, matching the
+# mockup exactly. The mode toggle gets a deliberately wide first column:
+# unlike the mockup's plain flex row (which just sizes to content),
+# st.columns() uses fixed proportional widths regardless of what's
+# inside them, so a 3-option segmented control needs real column width
+# or its own pills wrap onto separate lines.
 with st.container(border=True):
-    sc1, sc2, sc3, sc4 = st.columns([2.2, 1.3, 1, 1])
+    sc1, sc2, sc3, sc4 = st.columns([2.2, 1.3, 1, 1.1])
     with sc1:
         if hasattr(st, "segmented_control"):
             mode = st.segmented_control("Data Source Mode", MODE_OPTIONS, default=MODE_OPTIONS[0])
@@ -47,18 +47,16 @@ with st.container(border=True):
             scoped_brand_id = style.brand_selector(label="Scope Memory Context")
     with sc3:
         segment = st.selectbox("Segment", ["All channels", "Paid social", "Organic", "Email"])
-    with sc4:
-        period = st.selectbox("Period", ["Last 90 days", "Last 6 months", "Last 12 months"])
+    period = PERIOD_DEFAULT
 
     # Brand/workspace is the only piece of the Run button's validity known
     # this early — whether an upload mode has a parsed file yet is only
     # known further down, after the drawer renders, so that half of the
     # guard is checked post-click instead of via a pre-disabled state.
     missing_brand = not locked and scoped_brand_id is None
-    bc1, bc2 = st.columns([3, 1])
-    with bc2:
+    with sc4:
         run = st.button(
-            "Run diagnosis →", type="primary", disabled=missing_brand,
+            "Run Diagnosis", type="primary", disabled=missing_brand,
             help="Select a brand first." if missing_brand else None,
             use_container_width=True,
         )

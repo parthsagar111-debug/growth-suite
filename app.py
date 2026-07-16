@@ -19,15 +19,15 @@ if not data.is_live():
 
 style.sidebar()
 
-st.title("Growth suite")
+st.title("Growth Suite")
 st.markdown('<p class="subtitle">Diagnose a funnel, design the fix, test it, and remember what happened — all under one roof.</p>', unsafe_allow_html=True)
 
 cols = st.columns(4)
 tools = [
-    ("Funnel diagnostics", "coral", "Step 1 · Diagnose", "Upload funnel metrics or order history → a diagnosed leak, seven charts, and ranked plays.", "pages/1_Funnel_Diagnostics.py"),
-    ("Lifecycle architect", "accent", "Step 2 · Design", "Describe a brand → a stage-by-stage WhatsApp journey with tone scoring and copy variants.", "pages/2_Lifecycle_Architect.py"),
-    ("Experiment designer", "amber", "Step 3 · Test", "Type a hypothesis → a real z-test spec, guardrails, and a decision rule.", "pages/3_Experiment_Designer.py"),
-    ("Results & learnings", "teal", "Step 4 · Learn", "Grade a shipped experiment against its own decision rule and log what was learned.", "pages/4_Results_Learnings.py"),
+    ("Funnel Diagnostics", "coral", "Step 1 · Diagnose", "Upload funnel metrics or order history → a diagnosed leak, a full chart dashboard, and ranked plays.", "pages/1_Funnel_Diagnostics.py"),
+    ("Lifecycle Architect", "accent", "Step 2 · Design", "Describe a brand → a stage-by-stage WhatsApp journey with tone scoring and copy variants.", "pages/2_Lifecycle_Architect.py"),
+    ("Experiment Designer", "amber", "Step 3 · Test", "Type a hypothesis → a real z-test spec, guardrails, and a decision rule.", "pages/3_Experiment_Designer.py"),
+    ("Results & Learnings", "teal", "Step 4 · Learn", "Grade a shipped experiment against its own decision rule and log what was learned.", "pages/4_Results_Learnings.py"),
 ]
 for col, (name, kind, step_label, desc, page) in zip(cols, tools):
     with col:
@@ -43,9 +43,9 @@ with st.expander("How this works"):
         """
 Every number on every page is computed by deterministic code — cohort math, z-test sample sizes,
 trigger-day rules — never guessed by a model. AI's job is layered on top: multiple named agents per
-tool interpret, compare, and narrate those numbers (interpreter, anomaly explainer, benchmark
-commentary, risk assessment, and a final narrative synthesis), and every tool shows its full set of
-charts and analysis before it shows a recommendation.
+tool interpret, compare, and narrate those numbers (anomaly explainer, benchmark commentary, risk
+assessment, and a final narrative synthesis), and every tool shows its full set of charts and
+analysis before it shows a recommendation.
 
 The one deliberate exception is grading: when an experiment ships and real results come in, the
 SHIP/KILL/EXTEND call is made by comparing actuals against the thresholds you already committed to —
