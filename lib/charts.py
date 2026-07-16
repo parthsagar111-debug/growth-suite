@@ -7,14 +7,14 @@ three-state SHIP/EXTEND/KILL vocabulary."""
 import plotly.graph_objects as go
 
 ACCENT, TEAL, CORAL, AMBER, GREEN, RED, MUTED = (
-    "#4f46e5", "#059669", "#dc2626", "#b45309", "#059669", "#dc2626", "#64748b")
+    "#6366f1", "#10b981", "#ef4444", "#d97706", "#10b981", "#ef4444", "#94a3b8")
 
 GRIDLINE = "#e2e8f0"
 
 BASE_LAYOUT = dict(
     margin=dict(l=40, r=20, t=30, b=40), height=320,
     paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-    font=dict(family="Helvetica, Arial, sans-serif", size=12, color="#0f172a"),
+    font=dict(family="Helvetica, Arial, sans-serif", size=12, color="#1e293b"),
     legend=dict(bgcolor="rgba(0,0,0,0)"),
 )
 
@@ -56,7 +56,7 @@ def cohort_heatmap(cohorts):
     z = [[c[k] for k in cols] for c in cohorts]
     fig = go.Figure(go.Heatmap(
         z=z, x=["M1", "M2", "M3", "M4"], y=months,
-        colorscale=[[0, "#fef2f2"], [0.5, "#fde68a"], [1, "#059669"]],
+        colorscale=[[0, "#fef2f2"], [0.5, "#fde68a"], [1, "#10b981"]],
         text=[[f"{v}%" for v in row] for row in z], texttemplate="%{text}",
         xgap=3, ygap=3))
     return _apply(fig, "Cohort retention heatmap")

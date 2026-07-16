@@ -23,14 +23,14 @@ wraps them. That's what the global rule below does instead.
 import streamlit as st
 
 PALETTE = {
-    "accent": "#4f46e5", "accent_bg": "#eef2ff",   # Indigo
-    "teal": "#059669", "teal_bg": "#ecfdf5",         # Emerald
-    "coral": "#dc2626", "coral_bg": "#fef2f2",       # Crimson
-    "amber": "#b45309", "amber_bg": "#fffbeb",
-    "green": "#059669", "green_bg": "#ecfdf5",
-    "red": "#dc2626", "red_bg": "#fef2f2",
-    "muted": "#64748b", "muted_bg": "#f1f5f9",       # Slate
-    "text": "#0f172a", "text2": "#475569",
+    "accent": "#6366f1", "accent_bg": "#eef2ff",   # Indigo
+    "teal": "#10b981", "teal_bg": "#ecfdf5",         # Emerald
+    "coral": "#ef4444", "coral_bg": "#fef2f2",       # Crimson
+    "amber": "#d97706", "amber_bg": "#fffbeb",
+    "green": "#10b981", "green_bg": "#ecfdf5",
+    "red": "#ef4444", "red_bg": "#fef2f2",
+    "muted": "#94a3b8", "muted_bg": "#f1f5f9",       # Slate
+    "text": "#1e293b", "text2": "#475569",
     "border": "#e2e8f0",
 }
 
@@ -62,7 +62,7 @@ html, body, [class*="css"] {font-family: Helvetica, Arial, sans-serif !important
     background-color: #f8fafc !important;
 }
 div[data-testid="stVerticalBlock"] > div {gap: 0.6rem;}
-h1 {font-size: 24px !important; font-weight: 700 !important; margin-bottom: 2px !important; color:#0f172a;}
+h1 {font-size: 24px !important; font-weight: 700 !important; margin-bottom: 2px !important; color:#1e293b;}
 h2 {font-size: 17px !important; font-weight: 600 !important;}
 h3 {font-size: 13px !important; font-weight: 700 !important; text-transform:uppercase; letter-spacing:0.03em;
     color:#475569 !important; margin-top: 0.4rem !important;}
@@ -117,7 +117,7 @@ div[data-testid="stWidgetLabel"] p {
     font-weight: 600 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.03em !important;
-    color: #64748b !important;
+    color: #1e293b !important;
 }
 
 /* Soften rigid native element inputs */
@@ -143,45 +143,129 @@ div[data-baseweb="select"], div[data-baseweb="input"] {
 div[data-testid="stMetric"] {
   background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 16px;
 }
-div[data-testid="stMetricValue"] {font-size: 26px !important; font-weight: 700 !important; color:#0f172a;}
-div[data-testid="stMetricLabel"] {font-size: 12px !important; color:#64748b !important; font-weight:600;
+div[data-testid="stMetricValue"] {font-size: 26px !important; font-weight: 700 !important; color:#1e293b;}
+div[data-testid="stMetricLabel"] {font-size: 12px !important; color:#94a3b8 !important; font-weight:600;
   text-transform:uppercase; letter-spacing:0.02em;}
 
 .gs-badge {display:inline-block; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; margin-bottom:6px;}
-.gs-badge-teal {background:#ecfdf5; color:#059669;}
-.gs-badge-coral {background:#fef2f2; color:#dc2626;}
-.gs-badge-amber {background:#fffbeb; color:#b45309;}
-.gs-badge-accent {background:#eef2ff; color:#4f46e5;}
-.gs-badge-muted {background:#f1f5f9; color:#64748b;}
+.gs-badge-teal {background:#ecfdf5; color:#10b981;}
+.gs-badge-coral {background:#fef2f2; color:#ef4444;}
+.gs-badge-amber {background:#fffbeb; color:#d97706;}
+.gs-badge-accent {background:#eef2ff; color:#6366f1;}
+.gs-badge-muted {background:#f1f5f9; color:#94a3b8;}
 
 /* Compact inline status pill — replaces static "nothing found" boxes
    with a single-line acknowledgement that doesn't eat vertical space. */
 .gs-pill {display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600;
   padding:5px 12px; border-radius:20px; margin: 4px 0 10px 0;}
-.gs-pill-ok {background:#ecfdf5; color:#059669;}
-.gs-pill-warn {background:#fffbeb; color:#b45309;}
-.gs-pill-muted {background:#f1f5f9; color:#64748b;}
+.gs-pill-ok {background:#ecfdf5; color:#10b981;}
+.gs-pill-warn {background:#fffbeb; color:#d97706;}
+.gs-pill-muted {background:#f1f5f9; color:#94a3b8;}
 
 .gs-flow-banner {display:flex; align-items:center; gap:10px; background:#eef2ff; color:#3730a3;
   border-radius:8px; padding:12px 16px; font-size:13px; margin:10px 0; border:1px solid #c7d2fe;}
 .gs-agent-card {border:1px solid #e2e8f0; border-radius:10px; padding:12px 16px; margin-bottom:10px; background:#fff;}
-.gs-agent-label {font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#64748b; margin-bottom:4px;}
+.gs-agent-label {font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#94a3b8; margin-bottom:4px;}
 .gs-stage-msg {background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 12px; font-size:13px; margin-top:6px;}
 .gs-offline {text-align:center; padding: 4rem 1rem; color:#475569;}
 
 .gs-zone {font-size:13px; font-weight:600; padding:4px 0;}
-.gs-zone-safe {color:#059669;}
-.gs-zone-kill {color:#dc2626;}
+.gs-zone-safe {color:#10b981;}
+.gs-zone-kill {color:#ef4444;}
 
-.gs-empty {text-align:center; color:#64748b; font-size:13px; padding:2.5rem 1rem;
+.gs-empty {text-align:center; color:#94a3b8; font-size:13px; padding:2.5rem 1rem;
   border:1px dashed #e2e8f0; border-radius:10px; margin-top:0.5rem;}
 
 .gs-step-day {display:inline-flex; align-items:center; justify-content:center; min-width:52px;
-  height:52px; border-radius:10px; background:#eef2ff; color:#4f46e5; font-weight:700;
+  height:52px; border-radius:10px; background:#eef2ff; color:#6366f1; font-weight:700;
   font-size:13px; text-align:center; line-height:1.15;}
 
 .gs-ghost-brand {display:flex; align-items:center; gap:8px; background:#f8fafc; border:1px dashed #cbd5e1;
   border-radius:8px; padding:9px 12px; font-size:14px; color:#475569; font-weight:500;}
+
+/* ── Dark sidebar theme ───────────────────────────────────────────────
+   Mirrors the mockup's slate-900 <aside>: dark panel, gradient wordmark,
+   muted nav text that brightens on hover, and a left-border indigo
+   accent on whichever page link Streamlit marks as current via
+   aria-current="page" (it does this natively — no extra state needed). */
+section[data-testid="stSidebar"] {
+    background-color: #0f172a !important;
+    border-right: 1px solid #1e293b;
+}
+section[data-testid="stSidebar"] * {
+    color: #cbd5e1;
+}
+section[data-testid="stSidebar"] h3 {
+    background: linear-gradient(to right, #a5b4fc, #6366f1) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+    letter-spacing: -0.3px !important;
+    margin-top: 0 !important;
+}
+section[data-testid="stSidebar"] hr {border-color: #1e293b !important;}
+section[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+section[data-testid="stSidebar"] small {
+    color: #94a3b8 !important;
+}
+section[data-testid="stSidebar"] [data-testid="stPageLink"] {
+    border-radius: 8px;
+    margin-bottom: 2px;
+}
+section[data-testid="stSidebar"] [data-testid="stPageLink"] p {
+    color: #94a3b8 !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+}
+section[data-testid="stSidebar"] [data-testid="stPageLink"]:hover {
+    background: rgba(255,255,255,0.06) !important;
+}
+section[data-testid="stSidebar"] a[aria-current="page"] {
+    background: rgba(255,255,255,0.07) !important;
+    border-left: 3px solid #6366f1 !important;
+    border-radius: 0 8px 8px 0 !important;
+}
+section[data-testid="stSidebar"] a[aria-current="page"] p {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* ── Segmented control (Data Source Mode toggle) ─────────────────────
+   Streamlit's native st.segmented_control already renders as a bordered
+   pill group; these are light touch-ups so it reads as one connected
+   toggle instead of three loose buttons. */
+div[data-testid="stSegmentedControl"] {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 2px;
+    background: #ffffff;
+}
+
+/* ── Native file uploader restyle ─────────────────────────────────────
+   Reskins Streamlit's real dropzone (still fully functional) to match
+   the mockup's dashed drop area instead of building a fake HTML one
+   that wouldn't actually accept a file. */
+div[data-testid="stFileUploaderDropzone"] {
+    background: #f8fafc !important;
+    border: 2px dashed #cbd5e1 !important;
+    border-radius: 8px !important;
+}
+div[data-testid="stFileUploaderDropzone"]:hover {
+    border-color: #6366f1 !important;
+}
+
+/* ── Connected control-strip + upload-drawer panel (Funnel Diagnostics
+   upload modes) — one real st.container(border=True) styled so its
+   dashed internal divider reads as the seam between "controls" and
+   "drop your file here", matching the mockup's two-part card. */
+.gs-drawer-seam {
+    border-top: 1px dashed #e2e8f0;
+    margin: 1rem 0 1rem 0;
+}
 </style>
 """
 
@@ -214,7 +298,7 @@ def sidebar():
             st.page_link(page, label=label, icon=icon)
 
 
-def brand_selector(label="Brand / workspace", locked=False, locked_text="✨ My Custom Brand"):
+def brand_selector(label="Scope Memory Context", locked=False, locked_text="✨ My Custom Brand"):
     """Renders inline as one column of a page's horizontal control
     strip. When `locked`, swaps to a disabled ghost placeholder instead
     of the real dropdown. Returns the resolved brand_id, or None while
@@ -323,15 +407,15 @@ def kpi_row(items):
         delta_html = ""
         if delta:
             if positive is True:
-                delta_html = f'<div style="color:#059669; font-size:13px; font-weight:600; margin-top:4px;">↑ {delta}</div>'
+                delta_html = f'<div style="color:#10b981; font-size:13px; font-weight:600; margin-top:4px;">↑ {delta}</div>'
             elif positive is False:
-                delta_html = f'<div style="color:#dc2626; font-size:13px; font-weight:600; margin-top:4px;">↓ {delta}</div>'
+                delta_html = f'<div style="color:#ef4444; font-size:13px; font-weight:600; margin-top:4px;">↓ {delta}</div>'
             else:
-                delta_html = f'<div style="color:#64748b; font-size:13px; font-weight:600; margin-top:4px;">{delta}</div>'
+                delta_html = f'<div style="color:#94a3b8; font-size:13px; font-weight:600; margin-top:4px;">{delta}</div>'
         cards.append(
             '<div class="kpi-card-custom">'
-            f'<div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.02em; color:#64748b;">{item["label"]}</div>'
-            f'<div style="font-size:28px; font-weight:700; color:#0f172a; margin-top:6px;">{item["value"]}</div>'
+            f'<div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.02em; color:#94a3b8;">{item["label"]}</div>'
+            f'<div style="font-size:28px; font-weight:700; color:#1e293b; margin-top:6px;">{item["value"]}</div>'
             f'{delta_html}'
             '</div>'
         )

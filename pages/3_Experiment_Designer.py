@@ -18,7 +18,7 @@ if imported:
 # Card look comes from the global stHorizontalBlock rule in style.py.
 sc1, sc2, sc3, sc4 = st.columns([1.3, 1, 1, 1.2])
 with sc1:
-    brand_id = style.brand_selector(label="Brand / workspace")
+    brand_id = style.brand_selector(label="Scope Memory Context")
 with sc2:
     baseline = st.text_input("Baseline rate", "18%")
 with sc3:

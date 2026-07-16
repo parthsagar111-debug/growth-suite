@@ -14,7 +14,7 @@ st.markdown('<p class="subtitle">Grade a shipped experiment against the decision
 # Card look comes from the global stHorizontalBlock rule in style.py.
 sc1, _ = st.columns([1.3, 3])
 with sc1:
-    brand_id = style.brand_selector(label="Brand / workspace")
+    brand_id = style.brand_selector(label="Scope Memory Context")
 
 # State-bug guard: a grade verdict shown for one brand shouldn't linger
 # on screen after switching to a different brand.
