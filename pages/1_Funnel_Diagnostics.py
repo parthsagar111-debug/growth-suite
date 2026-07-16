@@ -152,21 +152,23 @@ if result:
         st.caption(stats["_funnel_note"])
     if stats.get("_cohort_note"):
         st.caption(stats["_cohort_note"])
+    # Anomaly detection still runs — it's real signal feeding the status
+    # pill and the AI narrative's anomaly_explainer — only the standalone
+    # trend line chart is dropped, since the cohort heatmap already shows
+    # the same retention story with less redundant screen space.
+    anomalies = charts.detect_anomalies(stats["trend"])
     c1, c2 = st.columns(2)
     with c1:
         st.plotly_chart(charts.funnel_dropoff(stats["funnel_stages"]), use_container_width=True)
-        anomalies = charts.detect_anomalies(stats["trend"])
-        st.plotly_chart(charts.trend_with_anomalies(stats["trend"]), use_container_width=True)
         if anomalies:
             style.status_pill(f"⚠ {len(anomalies)} anomaly point(s) flagged", "warn")
         else:
             style.status_pill("✓ 0 anomalies flagged", "ok")
         st.plotly_chart(charts.discount_dependency(stats["discount_dependency"]), use_container_width=True)
-        st.plotly_chart(charts.benchmark_bar(stats["benchmark"]), use_container_width=True)
+        st.plotly_chart(charts.time_to_second_order(stats["time_to_2nd_order_median_days"]), use_container_width=True)
     with c2:
         st.plotly_chart(charts.cohort_heatmap(stats["cohorts"]), use_container_width=True)
-        st.plotly_chart(charts.segment_comparison(stats["segments"]), use_container_width=True)
-        st.plotly_chart(charts.time_to_second_order(stats["time_to_2nd_order_median_days"]), use_container_width=True)
+        st.plotly_chart(charts.benchmark_bar(stats["benchmark"]), use_container_width=True)
 
     # ── Consolidated AI summary ─────────────────────────────────────────
     # Five separate agent-label headers collapsed into two dense reading

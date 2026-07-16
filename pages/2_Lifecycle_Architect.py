@@ -59,13 +59,14 @@ if result:
     ])
 
     st.markdown("### Full analysis dashboard")
+    # Tone curve and cadence-vs-benchmark dropped — secondary context that
+    # doesn't change what to do next; the stage-by-stage cards below already
+    # show each stage's tone score and trigger day inline.
     c1, c2 = st.columns(2)
     with c1:
         st.plotly_chart(charts.journey_timeline(stages), use_container_width=True)
-        st.plotly_chart(charts.tone_curve(stages), use_container_width=True)
     with c2:
         st.plotly_chart(charts.engagement_funnel(funnel), use_container_width=True)
-        st.plotly_chart(charts.cadence_benchmark(result["cadence_benchmark"]), use_container_width=True)
 
     style.agent_card("Narrative synthesis", f"**{result['narrative']['synthesis']}**")
 

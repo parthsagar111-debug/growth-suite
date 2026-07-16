@@ -47,6 +47,10 @@ if run:
     style.remember_result("experiment_result", result_value, brand_id)
     # n8n's Memory: Write already persisted this spec to Supabase before responding —
     # grab its id (matched on hypothesis text) so Results & Learnings can grade it later.
+    # get_experiments() is now cached (see data.py) so it doesn't hit Supabase on
+    # every rerun — but that means it must be explicitly cleared here, or this
+    # lookup could return a stale pre-insert list and never find the new row.
+    data.get_experiments.clear()
     recent = data.get_experiments(brand_id)
     if recent and recent[0].get("hypothesis") == hyp:
         st.session_state["latest_experiment_id"] = recent[0]["id"]
@@ -64,10 +68,12 @@ if result:
     ])
 
     st.markdown("### Full analysis dashboard")
+    # Duration was its own block-fill chart before — dropped, since it's
+    # already a plain number in the scorecard above (Est. duration) and
+    # doesn't need a second, slower-to-read visual for the same fact.
     c1, c2 = st.columns(2)
     with c1:
         st.plotly_chart(charts.power_curve(spec["power_curve"]), use_container_width=True)
-        st.plotly_chart(charts.duration_timeline(spec["duration_days"]), use_container_width=True)
     with c2:
         st.plotly_chart(charts.sample_size_tradeoff(spec["power_curve"]), use_container_width=True)
         if result["historical_outcomes"]:

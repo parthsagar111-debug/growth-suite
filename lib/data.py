@@ -137,9 +137,14 @@ def create_brand(name: str, category: str = "Other", discount_stance: str = "dis
     return new_id
 
 
+@st.cache_data(ttl=15)
 def get_experiments(brand_id: str):
     """Experiments for a brand, most recent first — lets Results & Learnings
-    attach a grade to a specific experiment row instead of grading in a vacuum."""
+    attach a grade to a specific experiment row instead of grading in a vacuum.
+
+    Cached like is_live()/get_brands(): this was the one Supabase read in
+    the module still firing on every single script rerun (every widget
+    interaction reruns the whole page), instead of only every ~15s."""
     sb = _supabase()
     if sb is None or not brand_id:
         return []
