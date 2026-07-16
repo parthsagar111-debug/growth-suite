@@ -59,7 +59,15 @@ html, body, [class*="css"] {font-family: Helvetica, Arial, sans-serif !important
     padding-top: 2rem !important;
     padding-bottom: 2rem !important;
     max-width: 1280px !important;
-    background-color: #f8fafc !important;
+    background-color: #ffffff !important;
+}
+/* The block-container above is the content column itself, but Streamlit
+   paints its own background on the wrapping app-view/main containers
+   behind it — if those stay the old light gray-blue, it still shows as
+   a tinted canvas around/behind every card. Force the whole right-side
+   content area (everything except the dark sidebar) to plain white. */
+[data-testid="stAppViewContainer"], [data-testid="stMain"], .main {
+    background-color: #ffffff !important;
 }
 div[data-testid="stVerticalBlock"] > div {gap: 0.6rem;}
 h1 {font-size: 32px !important; font-weight: 700 !important; margin-bottom: 8px !important; color:#0f172a;
