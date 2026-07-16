@@ -62,11 +62,12 @@ html, body, [class*="css"] {font-family: Helvetica, Arial, sans-serif !important
     background-color: #f8fafc !important;
 }
 div[data-testid="stVerticalBlock"] > div {gap: 0.6rem;}
-h1 {font-size: 24px !important; font-weight: 700 !important; margin-bottom: 2px !important; color:#1e293b;}
+h1 {font-size: 32px !important; font-weight: 700 !important; margin-bottom: 8px !important; color:#0f172a;
+    letter-spacing: -0.03em !important;}
 h2 {font-size: 17px !important; font-weight: 600 !important;}
 h3 {font-size: 13px !important; font-weight: 700 !important; text-transform:uppercase; letter-spacing:0.03em;
     color:#475569 !important; margin-top: 0.4rem !important;}
-.subtitle {color: #475569; font-size: 13.5px; margin-bottom: 1rem;}
+.subtitle {color: #64748b; font-size: 16px; margin-bottom: 1.5rem;}
 /* The one real source of "card" styling in the app: every intentional
    card (control strips, next_action, guardrail/journey/play/learnings
    entries) is a genuine st.container(border=True), so this single rule
@@ -74,6 +75,7 @@ h3 {font-size: 13px !important; font-weight: 700 !important; text-transform:uppe
 div[data-testid="stVerticalBlockBorderWrapper"] {
     border-radius: 10px !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+    background-color: #ffffff !important;
 }
 
 /* Premium B2B KPI Scorecard Grid — used by style.kpi_row(), a plain CSS
@@ -172,6 +174,12 @@ div[data-testid="stMetricLabel"] {font-size: 12px !important; color:#94a3b8 !imp
 .gs-badge-amber {background:#fffbeb; color:#d97706;}
 .gs-badge-accent {background:#eef2ff; color:#6366f1;}
 .gs-badge-muted {background:#f1f5f9; color:#94a3b8;}
+.gs-badge-blue {background:#eff6ff; color:#3b82f6;}
+
+/* Thin separator above the "Open Tools ↗" link on home-page tool cards,
+   matching the mockup's card-action-row border-top — a standalone rule
+   element, not a wrapping div, so it doesn't hit the div-wrap bug. */
+.gs-card-divider {border-top: 1px solid #f1f5f9; margin-top: 0.9rem; padding-top: 0.1rem;}
 
 /* Compact inline status pill — replaces static "nothing found" boxes
    with a single-line acknowledgement that doesn't eat vertical space. */
@@ -212,22 +220,6 @@ div[data-testid="stMetricLabel"] {font-size: 12px !important; color:#94a3b8 !imp
   height:52px; border-radius:10px; background:#eef2ff; color:#6366f1; font-weight:700;
   font-size:13px; text-align:center; line-height:1.15;}
 
-/* Mirrors div[data-testid="stWidgetLabel"] p exactly, so the locked
-   ghost-brand placeholder's label looks identical to every real widget
-   label next to it instead of a visibly different ad hoc style — that
-   mismatch, more than any height difference, was what made the column
-   read as "out of alignment" when switching between locked/unlocked. */
-.gs-fake-widget-label {
-  font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.03em;
-  color:#1e293b; margin-bottom:2px; display:block;
-}
-/* Padding tuned to land at roughly the same rendered height as a real
-   div[data-baseweb="select"] box (~42px incl. border) so the ghost
-   placeholder's box bottom-aligns flush with real selects in sibling
-   columns under the stColumn flex-end rule. */
-.gs-ghost-brand {display:flex; align-items:center; gap:8px; background:#f8fafc; border:1px dashed #cbd5e1;
-  border-radius:6px; padding:10px 12px; font-size:14px; color:#475569; font-weight:500; min-height:20px; box-sizing:border-box;}
-
 /* ── Dark sidebar theme ───────────────────────────────────────────────
    Mirrors the mockup's slate-900 <aside>: dark panel, gradient wordmark,
    muted nav text that brightens on hover, and a left-border indigo
@@ -241,16 +233,17 @@ section[data-testid="stSidebar"] * {
     color: #cbd5e1;
 }
 section[data-testid="stSidebar"] h3 {
-    background: linear-gradient(to right, #a5b4fc, #6366f1) !important;
-    -webkit-background-clip: text !important;
-    background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    color: transparent !important;
-    font-size: 20px !important;
+    color: #ffffff !important;
+    font-size: 21.6px !important;
     font-weight: 700 !important;
     text-transform: none !important;
-    letter-spacing: -0.3px !important;
+    letter-spacing: -0.4px !important;
     margin-top: 0 !important;
+}
+/* Mockup renders the wordmark as two solid-color spans ("Growth" white,
+   "Suite" indigo), not a gradient — this is the exact color it uses. */
+section[data-testid="stSidebar"] h3 span {
+    color: #818cf8 !important;
 }
 section[data-testid="stSidebar"] hr {border-color: #1e293b !important;}
 section[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
@@ -264,14 +257,14 @@ section[data-testid="stSidebar"] [data-testid="stPageLink"] {
 section[data-testid="stSidebar"] [data-testid="stPageLink"] p {
     color: #94a3b8 !important;
     font-weight: 500 !important;
-    font-size: 14px !important;
+    font-size: 15px !important;
 }
 section[data-testid="stSidebar"] [data-testid="stPageLink"]:hover {
-    background: rgba(255,255,255,0.06) !important;
+    background: rgba(255,255,255,0.02) !important;
 }
 section[data-testid="stSidebar"] a[aria-current="page"] {
-    background: rgba(255,255,255,0.07) !important;
-    border-left: 3px solid #6366f1 !important;
+    background: rgba(255,255,255,0.06) !important;
+    border-left: 4px solid #6366f1 !important;
     border-radius: 0 8px 8px 0 !important;
 }
 section[data-testid="stSidebar"] a[aria-current="page"] p {
@@ -350,7 +343,7 @@ def sidebar():
     Matches the reference mockup exactly: wordmark, then nav links
     directly underneath — no tagline caption, no divider, no icons."""
     with st.sidebar:
-        st.markdown("### GrowthSuite")
+        st.markdown('### Growth<span>Suite</span>', unsafe_allow_html=True)
         for page, label in NAV_PAGES:
             st.page_link(page, label=label)
 
@@ -363,11 +356,15 @@ def brand_selector(label="Scope Memory Context", locked=False, locked_text="✨ 
     from . import data as _data
 
     if locked:
-        st.markdown(
-            f'<span class="gs-fake-widget-label">{label}</span>'
-            f'<div class="gs-ghost-brand">{locked_text}</div>',
-            unsafe_allow_html=True,
-        )
+        # A real disabled st.selectbox, not a hand-styled div standing in
+        # for one. Two rounds of hand-tuned CSS (.gs-fake-widget-label +
+        # .gs-ghost-brand) still drifted out of alignment with the real
+        # selects next to it, because a div can never be guaranteed to
+        # match Streamlit's internal widget box model exactly. A real
+        # (disabled) selectbox is bit-for-bit the same component as every
+        # other selectbox in the row, so it lines up by construction —
+        # this bug class is now closed for good.
+        st.selectbox(label, [locked_text], disabled=True)
         return None
 
     brands = _data.get_brands()

@@ -20,22 +20,37 @@ if not data.is_live():
 style.sidebar()
 
 st.title("Growth Suite")
-st.markdown('<p class="subtitle">Diagnose a funnel, design the fix, test it, and remember what happened — all under one roof.</p>', unsafe_allow_html=True)
+st.markdown('<p class="subtitle">Diagnose your conversion funnel, design targeted fixes, test improvements, and preserve workspace history — all under one roof.</p>', unsafe_allow_html=True)
 
-cols = st.columns(4)
 tools = [
-    ("Funnel Diagnostics", "coral", "Step 1 · Diagnose", "Upload funnel metrics or order history → a diagnosed leak, a full chart dashboard, and ranked plays.", "pages/1_Funnel_Diagnostics.py"),
-    ("Lifecycle Architect", "accent", "Step 2 · Design", "Describe a brand → a stage-by-stage WhatsApp journey with tone scoring and copy variants.", "pages/2_Lifecycle_Architect.py"),
-    ("Experiment Designer", "amber", "Step 3 · Test", "Type a hypothesis → a real z-test spec, guardrails, and a decision rule.", "pages/3_Experiment_Designer.py"),
-    ("Results & Learnings", "teal", "Step 4 · Learn", "Grade a shipped experiment against its own decision rule and log what was learned.", "pages/4_Results_Learnings.py"),
+    ("Funnel Diagnostics", "coral", "Step 1 · Diagnose",
+     "Upload funnel snapshots or order-level transaction history to capture customer leaks, "
+     "inspect drop-off anomalies, and get an AI narrative alongside the full analysis dashboard.",
+     "pages/1_Funnel_Diagnostics.py"),
+    ("Lifecycle Architect", "blue", "Step 2 · Design",
+     "Map a targeted customer retention journey — a stage-by-stage WhatsApp sequence, custom-written "
+     "and scored against AI tone benchmarks.",
+     "pages/2_Lifecycle_Architect.py"),
+    ("Experiment Designer", "amber", "Step 3 · Test",
+     "Construct a statistically defensible test: translate a hypothesis into a sample-size spec, "
+     "power calculations, and guardrails that isolate variant risk.",
+     "pages/3_Experiment_Designer.py"),
+    ("Results & Learnings", "teal", "Step 4 · Learn",
+     "Grade a shipped experiment against the decision rule it committed to, and log what was "
+     "learned back into shared memory context.",
+     "pages/4_Results_Learnings.py"),
 ]
-for col, (name, kind, step_label, desc, page) in zip(cols, tools):
-    with col:
-        with st.container(border=True):
-            style.badge(step_label, kind)
-            st.markdown(f"**{name}**")
-            st.caption(desc)
-            st.page_link(page, label="Open →")
+# 2x2 grid, matching the mockup — not a single row of 4.
+for row_start in (0, 2):
+    row_cols = st.columns(2)
+    for col, (name, kind, step_label, desc, page) in zip(row_cols, tools[row_start:row_start + 2]):
+        with col:
+            with st.container(border=True):
+                style.badge(step_label, kind)
+                st.markdown(f"**{name}**")
+                st.caption(desc)
+                st.markdown('<div class="gs-card-divider"></div>', unsafe_allow_html=True)
+                st.page_link(page, label="Open Tools ↗")
 
 st.divider()
 with st.expander("How this works"):
