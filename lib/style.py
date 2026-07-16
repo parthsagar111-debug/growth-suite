@@ -237,12 +237,24 @@ section[data-testid="stSidebar"] a[aria-current="page"] p {
 /* ── Segmented control (Data Source Mode toggle) ─────────────────────
    Streamlit's native st.segmented_control already renders as a bordered
    pill group; these are light touch-ups so it reads as one connected
-   toggle instead of three loose buttons. */
+   toggle instead of three loose buttons. Forcing nowrap here is a
+   safety net on top of giving the widget a wide enough column: without
+   it, the three options silently stack into separate full-width rows
+   whenever the column is too narrow, instead of shrinking — that's the
+   "three stacked buttons" bug seen when this column was too tight. */
 div[data-testid="stSegmentedControl"] {
     border: 1px solid #e2e8f0;
     border-radius: 6px;
     padding: 2px;
     background: #ffffff;
+}
+div[data-testid="stSegmentedControl"] > div {
+    flex-wrap: nowrap !important;
+}
+div[data-testid="stSegmentedControl"] button {
+    font-size: 13px !important;
+    padding: 6px 12px !important;
+    white-space: nowrap !important;
 }
 
 /* ── Native file uploader restyle ─────────────────────────────────────

@@ -11,16 +11,24 @@ style.sidebar()
 st.title("Funnel diagnostics")
 st.markdown('<p class="subtitle">Upload funnel metrics or order history to get a diagnosed leak, a full analysis dashboard, and ranked plays.</p>', unsafe_allow_html=True)
 
-MODE_OPTIONS = ["Sample data (demo)", "Metrics snapshot", "Order-level data"]
+MODE_OPTIONS = ["Sample Demo", "Metrics Snapshot", "Order-Level"]
 
 # ── Connected control strip + upload drawer ─────────────────────────────
 # One real st.container(border=True) — brand/workspace, data-source mode,
-# the page's own filters, and the Run button all sit in a single top row;
-# an upload mode adds a dashed-seam "drawer" beneath it inside the SAME
-# card, matching the connected two-part panel in the design mockup rather
-# than two separate floating cards.
+# and the page's own filters share a top row; the Run button gets its own
+# row right below (still inside the same card) rather than a 5th column,
+# because a 5-column row this packed reliably wraps at typical viewport
+# widths — Streamlit gives each stColumn a hard minimum width, and once
+# the row's total minimum exceeds the container, the last column drops
+# to its own full-width line instead of shrinking. Two rows avoids that.
+# The mode toggle also gets a deliberately wide first column: unlike the
+# mockup's plain flex row (which just sizes to content), st.columns()
+# uses fixed proportional widths regardless of what's inside them, so a
+# 3-option segmented control needs real column width or its own pills
+# wrap onto separate lines — that's what the "Data Source Mode" three
+# stacked buttons in the live screenshot actually was.
 with st.container(border=True):
-    sc1, sc2, sc3, sc4, sc5 = st.columns([1.3, 1.3, 1, 1, 1])
+    sc1, sc2, sc3, sc4 = st.columns([2.2, 1.3, 1, 1])
     with sc1:
         if hasattr(st, "segmented_control"):
             mode = st.segmented_control("Data Source Mode", MODE_OPTIONS, default=MODE_OPTIONS[0])
@@ -28,7 +36,7 @@ with st.container(border=True):
                 mode = MODE_OPTIONS[0]
         else:
             mode = st.selectbox("Data Source Mode", MODE_OPTIONS)
-    is_upload_mode = mode != "Sample data (demo)"
+    is_upload_mode = mode != "Sample Demo"
     has_saved_ghost = st.session_state.get("ghost_brand_id") is not None
     locked = is_upload_mode and not has_saved_ghost
     with sc2:
@@ -41,12 +49,14 @@ with st.container(border=True):
         segment = st.selectbox("Segment", ["All channels", "Paid social", "Organic", "Email"])
     with sc4:
         period = st.selectbox("Period", ["Last 90 days", "Last 6 months", "Last 12 months"])
+
     # Brand/workspace is the only piece of the Run button's validity known
     # this early — whether an upload mode has a parsed file yet is only
     # known further down, after the drawer renders, so that half of the
     # guard is checked post-click instead of via a pre-disabled state.
     missing_brand = not locked and scoped_brand_id is None
-    with sc5:
+    bc1, bc2 = st.columns([3, 1])
+    with bc2:
         run = st.button(
             "Run diagnosis →", type="primary", disabled=missing_brand,
             help="Select a brand first." if missing_brand else None,
@@ -55,7 +65,7 @@ with st.container(border=True):
 
     computed_stats = None
 
-    if mode == "Order-level data":
+    if mode == "Order-Level":
         st.markdown('<div class="gs-drawer-seam"></div>', unsafe_allow_html=True)
         dc1, dc2, dc3 = st.columns([1.4, 1.4, 2])
         with dc1:
@@ -73,7 +83,7 @@ with st.container(border=True):
             except Exception as e:
                 st.error(f"Couldn't parse that file: {e}")
 
-    elif mode == "Metrics snapshot":
+    elif mode == "Metrics Snapshot":
         st.markdown('<div class="gs-drawer-seam"></div>', unsafe_allow_html=True)
         st.caption("Enter the headline numbers you already have — no file needed.")
         nc1, nc2, nc3 = st.columns(3)
@@ -103,11 +113,11 @@ with st.container(border=True):
         })
 
 if run:
-    if mode == "Order-level data" and computed_stats is None:
+    if mode == "Order-Level" and computed_stats is None:
         st.error("Upload and parse a CSV before running diagnosis.")
     else:
-        mode_key = {"Sample data (demo)": "sample", "Metrics snapshot": "metrics_snapshot",
-                    "Order-level data": "order_level"}[mode]
+        mode_key = {"Sample Demo": "sample", "Metrics Snapshot": "metrics_snapshot",
+                    "Order-Level": "order_level"}[mode]
         payload = {"brand_id": scoped_brand_id, "mode": mode_key, "segment": segment, "period": period}
         if computed_stats is not None:
             payload["computed_stats"] = computed_stats
