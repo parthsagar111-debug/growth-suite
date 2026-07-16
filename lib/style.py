@@ -234,14 +234,14 @@ div[data-testid="stMetricLabel"] {font-size: 12px !important; color:#94a3b8 !imp
 .gs-zone-kill {color:#ef4444;}
 
 .gs-empty {text-align:center; color:#94a3b8; font-size:13px; padding:2.5rem 1rem;
-  border:1px dashed #e2e8f0; border-radius:10px; margin-top:0.5rem;}
+  border:1px dashed #e2e8f0; border-radius:10px; margin-top:0.5rem; background:#ffffff;}
 
 .gs-step-day {display:inline-flex; align-items:center; justify-content:center; min-width:52px;
   height:52px; border-radius:10px; background:#eef2ff; color:#6366f1; font-weight:700;
   font-size:13px; text-align:center; line-height:1.15;}
 
 /* ── Dark sidebar theme ───────────────────────────────────────────────
-   Mirrors the mockup's slate-900 <aside>: dark panel, gradient wordmark,
+   Mirrors the mockup's slate-900 <aside>: dark panel, two-tone wordmark,
    muted nav text that brightens on hover, and a left-border indigo
    accent on whichever page link Streamlit marks as current via
    aria-current="page" (it does this natively — no extra state needed). */
