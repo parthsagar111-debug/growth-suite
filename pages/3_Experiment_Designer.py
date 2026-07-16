@@ -15,25 +15,27 @@ if imported:
     style.flow_banner(f"Imported hypothesis from Lifecycle Architect: {imported}")
 
 # ── Horizontal control strip ────────────────────────────────────────────
-# Card look comes from the global stHorizontalBlock rule in style.py.
-sc1, sc2, sc3, sc4 = st.columns([1.3, 1, 1, 1.2])
-with sc1:
-    brand_id = style.brand_selector(label="Scope Memory Context")
-with sc2:
-    baseline = st.text_input("Baseline rate", "18%")
-with sc3:
-    mde = st.text_input("Minimum detectable effect", "+3pp")
-with sc4:
-    traffic = st.text_input("Daily eligible traffic", "640 customers/day")
-hyp = st.text_area("Hypothesis", value=imported or
-                    "Sending a day-28 \"reorder in 30 seconds\" WhatsApp nudge (no discount) to "
-                    "at-risk customers will lift M2 repeat-purchase rate.")
+# Card look comes from a real st.container(border=True), not a blanket
+# CSS rule on every columns() row.
+with st.container(border=True):
+    sc1, sc2, sc3, sc4 = st.columns([1.3, 1, 1, 1.2])
+    with sc1:
+        brand_id = style.brand_selector(label="Scope Memory Context")
+    with sc2:
+        baseline = st.text_input("Baseline rate", "18%")
+    with sc3:
+        mde = st.text_input("Minimum detectable effect", "+3pp")
+    with sc4:
+        traffic = st.text_input("Daily eligible traffic", "640 customers/day")
+    hyp = st.text_area("Hypothesis", value=imported or
+                        "Sending a day-28 \"reorder in 30 seconds\" WhatsApp nudge (no discount) to "
+                        "at-risk customers will lift M2 repeat-purchase rate.")
 
-missing = brand_id is None or not hyp.strip()
-run = st.button(
-    "Generate spec →", type="primary", disabled=missing,
-    help=("Select a brand first." if brand_id is None else "Enter a hypothesis first.") if missing else None,
-)
+    missing = brand_id is None or not hyp.strip()
+    run = st.button(
+        "Generate spec →", type="primary", disabled=missing,
+        help=("Select a brand first." if brand_id is None else "Enter a hypothesis first.") if missing else None,
+    )
 
 if run:
     with st.spinner("Computing the z-test spec, then running 5 AI agents on guardrails and risk…"):
@@ -78,7 +80,7 @@ if result:
     n = result["narrative"]
     ai1, ai2 = st.columns([3, 2])
     with ai1:
-        style.agent_card("Risk & rationale", f"**{n['synthesis']}**<br><br>{n['risk_assessment']}")
+        style.agent_card("Risk & rationale", f"**{n['synthesis']}**{n['risk_assessment']}")
     with ai2:
         style.agent_card("Historical precedent", n["similar_experiment_analyst"])
 

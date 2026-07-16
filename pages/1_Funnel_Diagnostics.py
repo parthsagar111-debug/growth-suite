@@ -175,7 +175,7 @@ if result:
     n = result["narrative"]
     ai1, ai2 = st.columns([3, 2])
     with ai1:
-        style.agent_card("Primary funnel leak", f"**{n['synthesis']}**<br><br>{n['root_cause']}")
+        style.agent_card("Primary funnel leak", f"**{n['synthesis']}**{n['root_cause']}")
     with ai2:
         cohort_summary = f"{n['benchmark_commentary']} {n['segment_insight']}"
         if anomalies:

@@ -67,7 +67,14 @@ h2 {font-size: 17px !important; font-weight: 600 !important;}
 h3 {font-size: 13px !important; font-weight: 700 !important; text-transform:uppercase; letter-spacing:0.03em;
     color:#475569 !important; margin-top: 0.4rem !important;}
 .subtitle {color: #475569; font-size: 13.5px; margin-bottom: 1rem;}
-div[data-testid="stVerticalBlockBorderWrapper"] {border-radius: 10px !important;}
+/* The one real source of "card" styling in the app: every intentional
+   card (control strips, next_action, guardrail/journey/play/learnings
+   entries) is a genuine st.container(border=True), so this single rule
+   is the only place card visuals need to live. */
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    border-radius: 10px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+}
 
 /* Premium B2B KPI Scorecard Grid — used by style.kpi_row(), a plain CSS
    grid of real divs instead of st.columns()+st.metric(), so the exact
@@ -87,18 +94,21 @@ div[data-testid="stVerticalBlockBorderWrapper"] {border-radius: 10px !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
-/* Force horizontal control strips into a sleek, bordered white card
-   layout — this is the real fix for the div-wrap bug described above.
-   Every st.columns() row in the app (control strips, chart pairs,
-   guardrail rows, grading inputs) picks this up automatically. */
+/* Spacing only for every st.columns() row — NOT a card. An earlier
+   version of this rule also gave every stHorizontalBlock a white
+   background + border + shadow, on the theory that it would fix the
+   div-wrap control-strip bug described above. It did fix that, but it
+   also indiscriminately carded EVERY OTHER columns() row in the app —
+   chart-pair rows, guardrail rows, the button row inside next_action(),
+   even the home page's row of 4 already-bordered tool cards — producing
+   nested "card inside a card" artifacts (an extra white box floating
+   inside an intentional one) and uneven spacing. The real, correct fix
+   for a control strip's card look is to wrap THAT specific row in a
+   genuine `st.container(border=True)` (see each page's control strip),
+   which renders its own distinct, intentional container instead of
+   piggybacking on every columns row in the app. */
 div[data-testid="stHorizontalBlock"] {
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    padding: 1.25rem !important;
     gap: 1.5rem !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
-    margin-bottom: 1.5rem !important;
 }
 /* Bottom-align each column's own content (label + widget) independently,
    rather than aligning the row as a single flex cross-axis block — this
@@ -120,11 +130,20 @@ div[data-testid="stWidgetLabel"] p {
     color: #1e293b !important;
 }
 
-/* Soften rigid native element inputs */
+/* Soften rigid native element inputs. Streamlit selects/inputs fill
+   100% of their column's width by design — fine in a narrow column, but
+   in a wide one (e.g. a lone filter next to a big empty spacer column)
+   that reads as the dropdown "stretching across the workspace." Capping
+   the rendered box (not the outer wrapper, so column layout is
+   untouched) keeps every input a sane, consistent width regardless of
+   how wide its column happens to be. */
 div[data-baseweb="select"], div[data-baseweb="input"] {
     border-radius: 6px !important;
     border: 1px solid #e2e8f0 !important;
     background-color: #ffffff !important;
+}
+div[data-baseweb="select"] > div, div[data-baseweb="base-input"] {
+    max-width: 420px !important;
 }
 /* Buttons get the same rounded, softened treatment — but NOT a forced
    background-color, since that would flatten primary CTA buttons
@@ -164,8 +183,21 @@ div[data-testid="stMetricLabel"] {font-size: 12px !important; color:#94a3b8 !imp
 
 .gs-flow-banner {display:flex; align-items:center; gap:10px; background:#eef2ff; color:#3730a3;
   border-radius:8px; padding:12px 16px; font-size:13px; margin:10px 0; border:1px solid #c7d2fe;}
-.gs-agent-card {border:1px solid #e2e8f0; border-radius:10px; padding:12px 16px; margin-bottom:10px; background:#fff;}
-.gs-agent-label {font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#94a3b8; margin-bottom:4px;}
+/* Readable AI narrative card — line-height + a distinct headline style
+   are what actually fix a "wall of text" (tight default line-height on
+   a long unbroken paragraph), not hiding content behind a line-clamp.
+   Every agent_card() call bolds its lead sentence via markdown (**text**),
+   which st.markdown renders as a real <strong> even inside this raw div,
+   so styling that tag gives every card a clear headline/detail hierarchy
+   for free without touching each page's call site. */
+.gs-agent-card {
+    border:1px solid #e2e8f0; border-radius:10px; padding:16px 20px;
+    margin-bottom:10px; background:#fff; line-height:1.6; font-size:13.5px; color:#334155;
+}
+.gs-agent-card strong {
+    display:block; font-size:15px; color:#1e293b; margin-bottom:8px; line-height:1.4;
+}
+.gs-agent-label {font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#94a3b8; margin-bottom:8px;}
 .gs-stage-msg {background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 12px; font-size:13px; margin-top:6px;}
 .gs-offline {text-align:center; padding: 4rem 1rem; color:#475569;}
 
@@ -180,8 +212,21 @@ div[data-testid="stMetricLabel"] {font-size: 12px !important; color:#94a3b8 !imp
   height:52px; border-radius:10px; background:#eef2ff; color:#6366f1; font-weight:700;
   font-size:13px; text-align:center; line-height:1.15;}
 
+/* Mirrors div[data-testid="stWidgetLabel"] p exactly, so the locked
+   ghost-brand placeholder's label looks identical to every real widget
+   label next to it instead of a visibly different ad hoc style — that
+   mismatch, more than any height difference, was what made the column
+   read as "out of alignment" when switching between locked/unlocked. */
+.gs-fake-widget-label {
+  font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.03em;
+  color:#1e293b; margin-bottom:2px; display:block;
+}
+/* Padding tuned to land at roughly the same rendered height as a real
+   div[data-baseweb="select"] box (~42px incl. border) so the ghost
+   placeholder's box bottom-aligns flush with real selects in sibling
+   columns under the stColumn flex-end rule. */
 .gs-ghost-brand {display:flex; align-items:center; gap:8px; background:#f8fafc; border:1px dashed #cbd5e1;
-  border-radius:8px; padding:9px 12px; font-size:14px; color:#475569; font-weight:500;}
+  border-radius:6px; padding:10px 12px; font-size:14px; color:#475569; font-weight:500; min-height:20px; box-sizing:border-box;}
 
 /* ── Dark sidebar theme ───────────────────────────────────────────────
    Mirrors the mockup's slate-900 <aside>: dark panel, gradient wordmark,
@@ -318,8 +363,11 @@ def brand_selector(label="Scope Memory Context", locked=False, locked_text="✨ 
     from . import data as _data
 
     if locked:
-        st.markdown(f'<label style="font-size:14px; font-weight:400;">{label}</label>', unsafe_allow_html=True)
-        st.markdown(f'<div class="gs-ghost-brand">{locked_text}</div>', unsafe_allow_html=True)
+        st.markdown(
+            f'<span class="gs-fake-widget-label">{label}</span>'
+            f'<div class="gs-ghost-brand">{locked_text}</div>',
+            unsafe_allow_html=True,
+        )
         return None
 
     brands = _data.get_brands()

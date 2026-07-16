@@ -11,10 +11,14 @@ st.title("Results & learnings")
 st.markdown('<p class="subtitle">Grade a shipped experiment against the decision rule it committed to, and keep a running log of what was learned.</p>', unsafe_allow_html=True)
 
 # ── Horizontal control strip ────────────────────────────────────────────
-# Card look comes from the global stHorizontalBlock rule in style.py.
-sc1, _ = st.columns([1.3, 3])
-with sc1:
-    brand_id = style.brand_selector(label="Scope Memory Context")
+# Card look comes from a real st.container(border=True), not a blanket
+# CSS rule on every columns() row. Only one real control here (brand),
+# so the row itself uses a narrower column instead of a wide empty
+# spacer, matching the visual weight of the other pages' control strips.
+with st.container(border=True):
+    sc1, _ = st.columns([1.3, 3])
+    with sc1:
+        brand_id = style.brand_selector(label="Scope Memory Context")
 
 # State-bug guard: a grade verdict shown for one brand shouldn't linger
 # on screen after switching to a different brand.

@@ -15,22 +15,24 @@ if imported:
     style.flow_banner(f"Imported diagnosis: {imported['diagnosed_leak']}")
 
 # ── Horizontal control strip ────────────────────────────────────────────
-# Card look comes from the global stHorizontalBlock rule in style.py.
-sc1, sc2, sc3 = st.columns([1.3, 1, 1])
-with sc1:
-    brand_id = style.brand_selector(label="Scope Memory Context")
-with sc2:
-    category = st.selectbox("Category", ["D2C · Beauty & personal care", "D2C · Home", "D2C · Food & bev"])
-with sc3:
-    discount_stance = st.selectbox("Discount stance", ["Discount-light (earn loyalty)", "Discount-heavy"])
-import_box = st.text_area(
-    "Import diagnosis (optional)",
-    value=imported["diagnosed_leak"] if imported else "",
-    placeholder="Paste a Funnel Diagnostics result here, or send it directly from that tool.",
-)
-
-run = st.button("Generate journey →", type="primary", disabled=brand_id is None,
-                 help="Select a brand first." if brand_id is None else None)
+# Card look comes from a real st.container(border=True), not a blanket
+# CSS rule on every columns() row (that used to also card chart pairs,
+# button rows, etc. — see the note on stHorizontalBlock in style.py).
+with st.container(border=True):
+    sc1, sc2, sc3 = st.columns([1.3, 1, 1])
+    with sc1:
+        brand_id = style.brand_selector(label="Scope Memory Context")
+    with sc2:
+        category = st.selectbox("Category", ["D2C · Beauty & personal care", "D2C · Home", "D2C · Food & bev"])
+    with sc3:
+        discount_stance = st.selectbox("Discount stance", ["Discount-light (earn loyalty)", "Discount-heavy"])
+    import_box = st.text_area(
+        "Import diagnosis (optional)",
+        value=imported["diagnosed_leak"] if imported else "",
+        placeholder="Paste a Funnel Diagnostics result here, or send it directly from that tool.",
+    )
+    run = st.button("Generate journey →", type="primary", disabled=brand_id is None,
+                     help="Select a brand first." if brand_id is None else None)
 
 if run:
     with st.spinner("Computing trigger-day cadence, then writing + scoring copy with 6 AI agents…"):
