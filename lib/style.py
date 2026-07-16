@@ -146,6 +146,26 @@ div[data-baseweb="select"], div[data-baseweb="input"] {
 }
 div[data-baseweb="select"] > div, div[data-baseweb="base-input"] {
     max-width: 420px !important;
+    background-color: #ffffff !important;
+}
+/* The rule above targets the OUTER select wrapper — but BaseWeb paints
+   the actual visible fill on an INNER div one level down (the clickable
+   value box), which for a *disabled* select (used by the locked "Scope
+   Memory Context" placeholder, and the "no brands yet" state) gets its
+   own muted gray fill + dimmed text that sits on top and hides the white
+   set above. Force that inner layer white and full-strength too, so a
+   disabled select still reads as a normal, intentional white box instead
+   of a grayed-out/broken one. */
+div[data-baseweb="select"] > div > div,
+div[data-testid="stSelectbox"] [aria-disabled="true"] {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    opacity: 1 !important;
+    -webkit-text-fill-color: #1e293b !important;
+}
+div[data-testid="stSelectbox"],
+div[data-testid="stSelectbox"] * {
+    opacity: 1 !important;
 }
 /* Buttons get the same rounded, softened treatment — but NOT a forced
    background-color, since that would flatten primary CTA buttons
