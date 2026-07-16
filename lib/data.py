@@ -75,35 +75,49 @@ def _supabase():
 def is_live() -> bool:
     """The kill switch. n8n's Active/Inactive toggle is the real switch
     (it stops the LLM/PDF calls); this flag just controls what the
-    frontend shows a visitor while workflows are off."""
-    sb = _supabase()
-    if sb is None:
+    frontend shows a visitor while workflows are off.
+
+    _supabase() (which calls create_client()) used to run synchronously
+    here, outside _guarded()'s timeout — so if client construction itself
+    ever blocked (DNS hiccup, slow TLS handshake, whatever), there was no
+    timeout catching it at all, and the whole app would hang on "Running
+    is_live()." indefinitely. Now client construction happens INSIDE the
+    guarded lambda, so the entire operation — not just the query — is
+    bounded by the same 10s cap."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
         return os.getenv("GROWTH_SUITE_LIVE", "true").lower() != "false"
-    return _guarded(
-        lambda: bool(sb.table("app_settings").select("value").eq("key", "is_live").single().execute().data["value"]),
-        default=True, label="Kill-switch check",
-    )
+
+    def _check():
+        sb = _supabase()
+        if sb is None:
+            return True
+        return bool(sb.table("app_settings").select("value").eq("key", "is_live").single().execute().data["value"])
+
+    return _guarded(_check, default=True, label="Kill-switch check")
 
 
 def set_live(value: bool):
-    sb = _supabase()
-    if sb is not None:
-        _guarded(
-            lambda: sb.table("app_settings").update({"value": value}).eq("key", "is_live").execute(),
-            default=None, label="Kill-switch update",
-        )
+    if SUPABASE_URL and SUPABASE_KEY:
+        def _update():
+            sb = _supabase()
+            if sb is not None:
+                sb.table("app_settings").update({"value": value}).eq("key", "is_live").execute()
+        _guarded(_update, default=None, label="Kill-switch update")
     is_live.clear()
 
 
 @st.cache_data(ttl=30)
 def get_brands():
-    sb = _supabase()
-    if sb is None:
+    if not SUPABASE_URL or not SUPABASE_KEY:
         return SAMPLE_BRANDS
-    return _guarded(
-        lambda: (sb.table("brands").select("*").order("created_at").execute().data or SAMPLE_BRANDS),
-        default=SAMPLE_BRANDS, label="Loading brands",
-    )
+
+    def _fetch():
+        sb = _supabase()
+        if sb is None:
+            return SAMPLE_BRANDS
+        return sb.table("brands").select("*").order("created_at").execute().data or SAMPLE_BRANDS
+
+    return _guarded(_fetch, default=SAMPLE_BRANDS, label="Loading brands")
 
 
 def create_brand(name: str, category: str = "Other", discount_stance: str = "discount-light") -> str | None:
@@ -117,15 +131,17 @@ def create_brand(name: str, category: str = "Other", discount_stance: str = "dis
     reaching Supabase — the caller already checks for a blank name, but
     a function that writes to the database shouldn't rely on callers to
     have done that correctly."""
-    sb = _supabase()
     name = (name or "").strip()
-    if sb is None or not name:
+    if not SUPABASE_URL or not SUPABASE_KEY or not name:
         return None
     if len(name) > 120:
         st.warning("Workspace name is too long (120 characters max).")
         return None
 
     def _insert():
+        sb = _supabase()
+        if sb is None:
+            return None
         res = sb.table("brands").insert({
             "name": name, "category": category, "discount_stance": discount_stance,
         }).execute()
@@ -145,18 +161,21 @@ def get_experiments(brand_id: str):
     Cached like is_live()/get_brands(): this was the one Supabase read in
     the module still firing on every single script rerun (every widget
     interaction reruns the whole page), instead of only every ~15s."""
-    sb = _supabase()
-    if sb is None or not brand_id:
+    if not SUPABASE_URL or not SUPABASE_KEY or not brand_id:
         return []
-    return _guarded(
-        lambda: (sb.table("experiments")
-                   .select("id,hypothesis,created_at")
-                   .eq("brand_id", brand_id)
-                   .order("created_at", desc=True)
-                   .limit(20)
-                   .execute().data or []),
-        default=[], label="Loading experiments",
-    )
+
+    def _fetch():
+        sb = _supabase()
+        if sb is None:
+            return []
+        return (sb.table("experiments")
+                  .select("id,hypothesis,created_at")
+                  .eq("brand_id", brand_id)
+                  .order("created_at", desc=True)
+                  .limit(20)
+                  .execute().data or [])
+
+    return _guarded(_fetch, default=[], label="Loading experiments")
 
 
 def save_experiment_result(experiment_id: str, lift_pp: float, optout_pp: float,
@@ -171,8 +190,7 @@ def save_experiment_result(experiment_id: str, lift_pp: float, optout_pp: float,
     be numbers — number_input widgets guarantee this client-side, but a
     write function shouldn't assume its caller always will.
     """
-    sb = _supabase()
-    if sb is None or not experiment_id:
+    if not SUPABASE_URL or not SUPABASE_KEY or not experiment_id:
         return False
     if verdict not in ("SHIP", "KILL", "EXTEND"):
         st.warning(f"Invalid verdict '{verdict}' — not saved.")
@@ -184,6 +202,9 @@ def save_experiment_result(experiment_id: str, lift_pp: float, optout_pp: float,
         return False
 
     def _insert():
+        sb = _supabase()
+        if sb is None:
+            return False
         sb.table("experiment_results").insert({
             "experiment_id": experiment_id,
             "actual_metrics": {
