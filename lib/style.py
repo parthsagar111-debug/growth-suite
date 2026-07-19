@@ -358,6 +358,7 @@ def inject():
 
 NAV_PAGES = [
     ("app.py", "Overview"),
+    ("pages/0_First_Response.py", "First Response"),
     ("pages/1_Funnel_Diagnostics.py", "Funnel Diagnostics"),
     ("pages/2_Lifecycle_Architect.py", "Lifecycle Architect"),
     ("pages/3_Experiment_Designer.py", "Experiment Designer"),

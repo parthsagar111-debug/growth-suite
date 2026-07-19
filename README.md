@@ -1,6 +1,8 @@
 # Growth Suite
 
-One URL, four tools: Funnel Diagnostics, Lifecycle Architect, Experiment Designer, and Results & Learnings. Deterministic math is computed in code, AI reasons expansively on top of it through named agent chains in n8n, and everything is scoped to a brand in a shared Supabase memory layer.
+One URL, five tools: First Response, Funnel Diagnostics, Lifecycle Architect, Experiment Designer, and Results & Learnings. Deterministic math is computed in code, AI reasons expansively on top of it through named agent chains in n8n, and everything is scoped to a brand in a shared Supabase memory layer.
+
+First Response is the odd one out by design — no data upload, no n8n workflow, no shared memory. It's a branching diagnostic chat (10 metric categories, each a real decision tree in `lib/decision_tree.py`, max 5 questions) that tells a junior PM what to investigate before they ever touch the other four tools. AI's job there is strictly narrower too: classify a free-text answer into a pre-defined branch and phrase the result — never invent a branch or a diagnosis off-tree. See `lib/decision_tree.py`'s module docstring for the full architecture note.
 
 Runs fully in **demo mode** out of the box — no Supabase or n8n required to see every page, every chart, and every AI-agent narrative, using bundled sample data that mirrors two seeded fictional brands (`sql/seed.sql`). Wire in real infra when you're ready; nothing needs to change in the frontend.
 
@@ -18,7 +20,8 @@ Opens in demo mode automatically since no webhook URLs are set.
 
 1. **Supabase** — create a project, run `sql/schema.sql` then `sql/seed.sql` in the SQL editor. Copy the project URL and service-role key into `.env` (`SUPABASE_URL`, `SUPABASE_KEY`).
 2. **n8n** — follow `n8n/BUILD_GUIDE.md`. Import the two memory sub-workflows and `funnel-diagnostics.json` as-is; build the other three workflows by duplicating that pattern per the guide. Copy each workflow's webhook URL into the matching `.env` variable (`N8N_WEBHOOK_FUNNEL`, `N8N_WEBHOOK_LIFECYCLE`, `N8N_WEBHOOK_EXPERIMENT`, `N8N_WEBHOOK_RESULTS`).
-3. **Deploy** — Render → New → Web Service → connect this repo. Build command `pip install -r requirements.txt`, start command `streamlit run app.py --server.port $PORT --server.address 0.0.0.0`. Add the same env vars from `.env`.
+3. **Groq** (First Response only) — get an API key at console.groq.com, put it in `.env` as `GROQ_API_KEY`. No n8n workflow involved — the Streamlit app calls Groq directly. Without it, First Response's live diagnostic chat is disabled but the "Try the demo" walkthrough still works (fully scripted, no AI call).
+4. **Deploy** — Render → New → Web Service → connect this repo. Build command `pip install -r requirements.txt`, start command `streamlit run app.py --server.port $PORT --server.address 0.0.0.0`. Add the same env vars from `.env`.
 
 ## The kill switch
 
@@ -32,6 +35,7 @@ Two layers, use both:
 ```
 app.py                     home hub, brand selector, kill-switch gate
 pages/
+  0_First_Response.py
   1_Funnel_Diagnostics.py
   2_Lifecycle_Architect.py
   3_Experiment_Designer.py
@@ -41,6 +45,9 @@ lib/
   data.py                  webhook caller + demo-mode sample data
   charts.py                every chart, plotly
   ingest.py                order-level CSV parsing + metrics-snapshot form → real computed_stats
+  decision_tree.py         First Response's 10 decision trees — deterministic data, the actual product
+  ai_diagnostic.py         First Response's Groq calls — branch classification + phrasing only
+  sample_scenario.py       First Response's "Try the demo" canned walkthrough
 sql/
   schema.sql
   seed.sql                 two fictional brands, ~2 months of fabricated history

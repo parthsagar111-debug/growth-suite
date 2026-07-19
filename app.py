@@ -20,30 +20,35 @@ if not data.is_live():
 style.sidebar()
 
 st.title("Growth Suite")
-st.markdown('<p class="subtitle">Diagnose your conversion funnel, design targeted fixes, test improvements, and preserve workspace history — all under one roof.</p>', unsafe_allow_html=True)
+st.markdown('<p class="subtitle">Triage the question, diagnose your conversion funnel, design targeted fixes, test improvements, and preserve workspace history — all under one roof.</p>', unsafe_allow_html=True)
 
 tools = [
-    ("Funnel Diagnostics", "coral", "Step 1 · Diagnose",
+    ("First Response", "accent", "Step 1 · Triage",
+     "Get asked why a metric is down? Run a branching diagnostic chat — no data upload — that tells "
+     "you exactly what to investigate, in what order, before touching the rest of the suite.",
+     "pages/0_First_Response.py"),
+    ("Funnel Diagnostics", "coral", "Step 2 · Diagnose",
      "Upload funnel snapshots or order-level transaction history to capture customer leaks, "
      "inspect drop-off anomalies, and get an AI narrative alongside the full analysis dashboard.",
      "pages/1_Funnel_Diagnostics.py"),
-    ("Lifecycle Architect", "blue", "Step 2 · Design",
+    ("Lifecycle Architect", "blue", "Step 3 · Design",
      "Map a targeted customer retention journey — a stage-by-stage WhatsApp sequence, custom-written "
      "and scored against AI tone benchmarks.",
      "pages/2_Lifecycle_Architect.py"),
-    ("Experiment Designer", "amber", "Step 3 · Test",
+    ("Experiment Designer", "amber", "Step 4 · Test",
      "Construct a statistically defensible test: translate a hypothesis into a sample-size spec, "
      "power calculations, and guardrails that isolate variant risk.",
      "pages/3_Experiment_Designer.py"),
-    ("Results & Learnings", "teal", "Step 4 · Learn",
+    ("Results & Learnings", "teal", "Step 5 · Learn",
      "Grade a shipped experiment against the decision rule it committed to, and log what was "
      "learned back into shared memory context.",
      "pages/4_Results_Learnings.py"),
 ]
-# 2x2 grid, matching the mockup — not a single row of 4.
-for row_start in (0, 2):
-    row_cols = st.columns(2)
-    for col, (name, kind, step_label, desc, page) in zip(row_cols, tools[row_start:row_start + 2]):
+# 3+2 grid — five tools now that First Response is the new first step,
+# not the 2x2 that fit exactly four.
+for row_start, row_size in ((0, 3), (3, 2)):
+    row_cols = st.columns(row_size)
+    for col, (name, kind, step_label, desc, page) in zip(row_cols, tools[row_start:row_start + row_size]):
         with col:
             with st.container(border=True):
                 style.badge(step_label, kind)
@@ -66,9 +71,15 @@ The one deliberate exception is grading: when an experiment ships and real resul
 SHIP/KILL/EXTEND call is made by comparing actuals against the thresholds you already committed to —
 by code, not by a model. That's the one decision that shouldn't be left to AI.
 
-Each tool is backed by its own n8n workflow. All four read from and write to a shared memory layer
-(Supabase), scoped by brand, via two reusable sub-workflows — `Memory: Retrieve` and `Memory: Write`
-— so Lifecycle Architect can ground a journey in a real diagnosis, and Experiment Designer can point
-at a similar experiment that already ran.
+First Response is the one exception to the n8n-workflow pattern below — it needs no data upload and
+no shared memory, just a branching diagnostic chat (max 5 questions, strict-mode branching, never
+improvising off its own decision trees) that tells you what to check before you ever touch the other
+four tools. It hands off to Funnel Diagnostics or Experiment Designer by name only when a case
+genuinely warrants it — and says so explicitly when one doesn't.
+
+Each of the other four tools is backed by its own n8n workflow. All four read from and write to a
+shared memory layer (Supabase), scoped by brand, via two reusable sub-workflows — `Memory: Retrieve`
+and `Memory: Write` — so Lifecycle Architect can ground a journey in a real diagnosis, and Experiment
+Designer can point at a similar experiment that already ran.
         """
     )
