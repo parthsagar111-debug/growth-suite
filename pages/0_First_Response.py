@@ -84,7 +84,17 @@ if st.session_state.fr_phase == "intake":
             icon="ℹ️",
         )
 
-    st.markdown("### Pick the metric category")
+    st.markdown("### Pick the Metric Category")
+    # The reference mockup shows every card as one uniform clickable block
+    # (icon + name + tag, no visible "Select" sub-button) — but Streamlit
+    # has no way to make an arbitrary container itself fire a click event;
+    # only a real widget (st.button, here) can trigger a rerun. Rather than
+    # fake a clickable div with CSS alone (looks right, does nothing when
+    # clicked — a functional regression dressed as a visual fix), the name
+    # itself IS the button label, so the primary click target is the
+    # card's main visual element instead of a separate small "Select"
+    # link — as close to "the cell is the selection element" as a real,
+    # working Streamlit widget gets.
     categories = dt.category_list()
     for row_start in (0, 5):
         row_cols = st.columns(5)
@@ -92,12 +102,11 @@ if st.session_state.fr_phase == "intake":
             with col:
                 with st.container(border=True):
                     st.markdown(f"<div style='font-size:20px;'>{icon}</div>", unsafe_allow_html=True)
-                    st.markdown(f"**{name}**")
-                    st.caption(tag)
-                    if st.button("Select", key=f"fr_cat_{tid}", use_container_width=True,
+                    if st.button(name, key=f"fr_cat_{tid}", use_container_width=True,
                                  disabled=not ai.is_configured()):
                         _start_category(tid)
                         st.rerun()
+                    st.caption(tag)
 
     st.divider()
     st.caption("Or see a full worked example first:")
