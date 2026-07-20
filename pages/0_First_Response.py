@@ -38,30 +38,28 @@ def _reset():
 
 
 def _start_category(tree_id: str):
+    """Loads that category's pre-scripted walkthrough instantly — no Groq
+    call, no latency, no "unclear answer" risk. Every category behaves
+    like the original demo now, not just Page Views (see
+    lib/sample_scenario.py for why: interview-time reliability beat live
+    AI classification here). The live/Groq-driven chat path further down
+    this file is left fully intact and still works if fr_result is ever
+    None when reaching Phase 1 — it's just unreachable from this button
+    now, not deleted, so nothing is lost if it's wanted back later."""
+    scenario = sample_scenario.SCENARIOS[tree_id]
     st.session_state.fr_category = tree_id
     st.session_state.fr_active_tree = tree_id
-    st.session_state.fr_check_idx = 0
-    st.session_state.fr_total_asked = 0
-    st.session_state.fr_history = []
-    st.session_state.fr_clarify = None
-    st.session_state.fr_result = None
-    st.session_state.fr_is_demo = False
-    st.session_state.fr_phase = "chat"
-
-
-def _start_demo():
-    st.session_state.fr_category = sample_scenario.CATEGORY
-    st.session_state.fr_active_tree = sample_scenario.CATEGORY
-    st.session_state.fr_vp_question = sample_scenario.VP_QUESTION
+    st.session_state.fr_vp_question = scenario["vp_question"]
     st.session_state.fr_history = [
-        {"tree_id": sample_scenario.CATEGORY, "check_label": t["check_label"], "question": t["question"],
+        {"tree_id": tree_id, "check_label": t["check_label"], "question": t["question"],
          "answer": t["answer"], "branch_note": t["branch_note"], "branch_data": {}}
-        for t in sample_scenario.TRANSCRIPT
+        for t in scenario["transcript"]
     ]
-    st.session_state.fr_total_asked = len(sample_scenario.TRANSCRIPT)
+    st.session_state.fr_check_idx = 0
+    st.session_state.fr_total_asked = len(scenario["transcript"])
     st.session_state.fr_clarify = None
     st.session_state.fr_is_demo = True
-    st.session_state.fr_result = dict(sample_scenario.DIAGNOSIS)
+    st.session_state.fr_result = dict(scenario["diagnosis"])
     st.session_state.fr_phase = "diagnosis"
 
 
@@ -76,15 +74,9 @@ if st.session_state.fr_phase == "intake":
             placeholder="Why are page views down this week?", label_visibility="collapsed",
         )
 
-    if not ai.is_configured():
-        st.info(
-            "Live diagnostic chat needs `GROQ_API_KEY` configured — it isn't right now, so picking a "
-            "category below won't work yet. The demo below still runs (it's fully pre-scripted, no AI "
-            "call needed).",
-            icon="ℹ️",
-        )
-
     st.markdown("### Pick the Metric Category")
+    st.caption("Every category below is a full instant walkthrough — click one to see the diagnostic "
+               "trace and hypothesis right away.")
     # The screenshot showed the real bug: 4 cards fit per row and the 5th
     # wrapped onto its own full-width line. Root cause: style.py's global
     # rule `div[data-testid="stHorizontalBlock"] { gap: 1.5rem !important; }`
@@ -116,16 +108,9 @@ if st.session_state.fr_phase == "intake":
                         st.markdown(f"<div style='font-size:20px;'>{icon}</div>", unsafe_allow_html=True)
                         st.markdown(f"**{name}**")
                         st.caption(tag)
-                        if st.button("Select", key=f"fr_cat_{tid}", use_container_width=True,
-                                     disabled=not ai.is_configured()):
+                        if st.button("Select", key=f"fr_cat_{tid}", use_container_width=True):
                             _start_category(tid)
                             st.rerun()
-
-    st.divider()
-    st.caption("Or see a full worked example first:")
-    if st.button("▶ Try the demo — \"Page Views, mobile-direct drop\"", use_container_width=False):
-        _start_demo()
-        st.rerun()
 
 # ── Phase 1 + 2: chat trace, then diagnosis ──────────────────────────────
 else:
@@ -135,10 +120,15 @@ else:
     if st.session_state.fr_vp_question:
         st.caption(f"“{st.session_state.fr_vp_question}”")
 
-    # The demo replays a frozen mid-session frame (see the pending-question
-    # note further down), so its header/dots should read "stopped at
-    # question 4" per the mockup rather than the generic 3-answered count.
-    stopped_at = (sample_scenario.STOPPED_AT_QUESTION if st.session_state.fr_is_demo
+    # Every category's scripted walkthrough replays a frozen frame (see
+    # the pending-question note further down), so its header/dots should
+    # read that scenario's own "stopped at" value rather than the generic
+    # answered-count — page_views's stops at 4 with a dangling pending
+    # question, matching the original mockup exactly; the other 9 stop
+    # cleanly right after their last given answer.
+    current_scenario = (sample_scenario.SCENARIOS.get(st.session_state.fr_category)
+                         if st.session_state.fr_is_demo else None)
+    stopped_at = (current_scenario["stopped_at"] if current_scenario
                   else st.session_state.fr_total_asked)
     header_sub = (f"stopped at question {stopped_at} · hypothesis, not confirmed"
                   if resolved else f"question {st.session_state.fr_total_asked + 1} of max {dt.MAX_QUESTIONS}")
@@ -171,16 +161,18 @@ else:
             with st.chat_message("user"):
                 st.write(h["answer"])
 
-        # Demo-only: replicate the mockup's exact frozen frame — a 4th
-        # question shown as asked but never answered, because the
-        # accumulated pattern already matched the tree's documented false
-        # alarm before an answer was needed. Live mode never leaves a
-        # question dangling like this — it always stops right after a
-        # confirmed answer, which is the more consistent real behavior.
-        if st.session_state.fr_is_demo and resolved:
+        # Scripted-scenario-only: page_views replicates the mockup's exact
+        # frozen frame — a 4th question shown as asked but never answered,
+        # because the accumulated pattern already matched the tree's
+        # documented false alarm before an answer was needed. The other 9
+        # scenarios stop cleanly with no dangling question. Live mode
+        # (unreachable from the category grid now, see _start_category)
+        # never leaves a question dangling either way.
+        pending_q = current_scenario.get("pending_question") if current_scenario else None
+        if resolved and pending_q:
             with st.chat_message("assistant"):
-                st.caption(sample_scenario.PENDING_QUESTION["check_label"] + " — current")
-                st.write(sample_scenario.PENDING_QUESTION["question"])
+                st.caption(pending_q["check_label"] + " — current")
+                st.write(pending_q["question"])
 
         if not resolved:
             if st.session_state.fr_clarify:
