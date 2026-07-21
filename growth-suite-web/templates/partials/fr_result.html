@@ -1,8 +1,10 @@
-<!-- Two-column split: left 2/3 is the diagnostic transcript, right 1/3 is the diagnosis payoff.
-     Grid default stretch keeps both cards equal height; each side's content is wrapped in
-     flex-1 flex flex-col justify-between across its logical groups so any leftover height spreads
-     as breathing room instead of collecting as one dead gap. Robust to scenarios with more/fewer
-     transcript steps or longer/shorter diagnosis copy. -->
+<!-- Sidebar-vs-feed layout: transcript length genuinely varies 1-4 steps depending on category
+     (see lib/sample_scenario.py), while the diagnosis panel is roughly constant length every time
+     (title, body, 3 pull-steps, reply box). So diagnosis is the sticky, natural-height sidebar and
+     transcript is a free-flowing feed sized to its own real content — a 1-step resolution just
+     looks compact, not broken, and a 4-step one doesn't force the diagnosis card to stretch into
+     dead space. Forcing equal height here (as an earlier version did) breaks the moment a category
+     with fewer steps is picked. -->
 <div class="mt-6">
   <div class="flex items-center gap-2 mb-4">
     <span class="text-xl">{{ tree.icon }}</span>
@@ -10,11 +12,14 @@
   </div>
   <p class="text-lg font-bold text-slate-900 italic mb-5">"{{ scenario.vp_question }}"</p>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Left 2/3: the narrowing-question transcript -->
-    <div class="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col">
-      <div class="text-[13px] font-semibold text-slate-700 mb-4">Diagnostic transcript</div>
-      <div class="flex-1 flex flex-col justify-between gap-2.5">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+    <!-- Left 2/3: the narrowing-question transcript, sized to its own content -->
+    <div class="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+      <div class="flex items-center justify-between mb-4">
+        <div class="text-[13px] font-semibold text-slate-700">Diagnostic transcript</div>
+        <span class="text-[11px] font-medium text-slate-400">Resolved in {{ scenario.transcript|length }} check{{ 's' if scenario.transcript|length != 1 else '' }}</span>
+      </div>
+      <div class="space-y-2.5">
         {% for step in scenario.transcript %}
         <div class="rounded-lg border border-slate-200 px-4 py-3">
           <div class="text-[10.5px] font-bold uppercase tracking-wide text-slate-400">{{ step.check_label }}</div>
@@ -35,37 +40,35 @@
       </a>
     </div>
 
-    <!-- Right 1/3: diagnosis + payoff -->
-    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col">
-      <div class="flex-1 flex flex-col justify-between gap-5">
-        <div>
-          <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold uppercase tracking-wide px-2.5 py-1">Diagnosis</span>
-          <p class="mt-3 text-[15px] font-bold text-slate-900 leading-snug">{{ scenario.diagnosis.title }}</p>
-          <p class="mt-2 text-[13px] leading-relaxed text-slate-600">{{ scenario.diagnosis.body }}</p>
-        </div>
+    <!-- Right 1/3: diagnosis + payoff — sticky, natural height, never stretched -->
+    <div class="lg:sticky lg:top-24 bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-5">
+      <div>
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold uppercase tracking-wide px-2.5 py-1">Diagnosis</span>
+        <p class="mt-3 text-[15px] font-bold text-slate-900 leading-snug">{{ scenario.diagnosis.title }}</p>
+        <p class="mt-2 text-[13px] leading-relaxed text-slate-600">{{ scenario.diagnosis.body }}</p>
+      </div>
 
-        <div>
-          <div class="text-[11px] font-bold uppercase tracking-wide text-slate-400">What to pull</div>
-          <ul class="mt-2 space-y-1.5 list-disc list-inside">
-            {% for step in scenario.diagnosis.pull_steps %}
-            <li class="text-[13px] text-slate-600">{{ step }}</li>
-            {% endfor %}
-          </ul>
-        </div>
+      <div class="pt-4 border-t border-slate-100">
+        <div class="text-[11px] font-bold uppercase tracking-wide text-slate-400">What to pull</div>
+        <ul class="mt-2 space-y-1.5 list-disc list-inside">
+          {% for step in scenario.diagnosis.pull_steps %}
+          <li class="text-[13px] text-slate-600">{{ step }}</li>
+          {% endfor %}
+        </ul>
+      </div>
 
-        <div>
-          <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
-            <div class="text-[11px] font-bold uppercase tracking-wide text-amber-700">Buying-time reply — ready to send</div>
-            <div class="mt-1 text-[13px] italic text-amber-900">{{ scenario.diagnosis.reply_draft }}</div>
-          </div>
-          <p class="mt-3 text-[12.5px] text-slate-500">{{ scenario.diagnosis.handoff_line }}</p>
-          {% if scenario.diagnosis.handoff and handoff_route %}
-          <a href="{{ handoff_route }}" class="mt-2 flex items-center justify-center gap-1.5 rounded-lg bg-indigo-600 text-white text-[13px] font-semibold px-4 py-2.5 hover:bg-indigo-700 transition-colors">
-            Open {{ scenario.diagnosis.handoff.label }}
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          </a>
-          {% endif %}
+      <div class="pt-4 border-t border-slate-100">
+        <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+          <div class="text-[11px] font-bold uppercase tracking-wide text-amber-700">Buying-time reply — ready to send</div>
+          <div class="mt-1 text-[13px] italic text-amber-900">{{ scenario.diagnosis.reply_draft }}</div>
         </div>
+        <p class="mt-3 text-[12.5px] text-slate-500">{{ scenario.diagnosis.handoff_line }}</p>
+        {% if scenario.diagnosis.handoff and handoff_route %}
+        <a href="{{ handoff_route }}" class="mt-2 flex items-center justify-center gap-1.5 rounded-lg bg-indigo-600 text-white text-[13px] font-semibold px-4 py-2.5 hover:bg-indigo-700 transition-colors">
+          Open {{ scenario.diagnosis.handoff.label }}
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        {% endif %}
       </div>
     </div>
   </div>
