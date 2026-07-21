@@ -1,10 +1,14 @@
-<!-- Sidebar-vs-feed layout: transcript length genuinely varies 1-4 steps depending on category
-     (see lib/sample_scenario.py), while the diagnosis panel is roughly constant length every time
-     (title, body, 3 pull-steps, reply box). So diagnosis is the sticky, natural-height sidebar and
-     transcript is a free-flowing feed sized to its own real content — a 1-step resolution just
-     looks compact, not broken, and a 4-step one doesn't force the diagnosis card to stretch into
-     dead space. Forcing equal height here (as an earlier version did) breaks the moment a category
-     with fewer steps is picked. -->
+<!-- Sidebar-vs-feed layout, with the split direction chosen by which side actually has more
+     content: transcript length genuinely varies 1-4 steps depending on category (see
+     lib/sample_scenario.py) while the diagnosis panel (title, body, 3 pull-steps, reply box) is
+     roughly constant. A fixed 2/3-transcript, 1/3-diagnosis split looks right for a 4-step
+     transcript, but for a 1-2 step category it puts a nearly-empty wide box next to a narrow
+     column that's forced to wrap into many lines — maximizing the height mismatch instead of
+     minimizing it. So: short transcript (<3 steps) gets the narrow column and diagnosis gets the
+     wide one (more width = fewer wrapped lines = shorter diagnosis height, closing the gap from
+     both sides); longer transcripts keep transcript wide/diagnosis narrow as before. Whichever
+     side ends up shorter is the one that's sticky, so it never awkwardly scrolls away first. -->
+{% set short_transcript = scenario.transcript|length < 3 %}
 <div class="mt-6">
   <div class="flex items-center gap-2 mb-4">
     <span class="text-xl">{{ tree.icon }}</span>
@@ -13,8 +17,8 @@
   <p class="text-lg font-bold text-slate-900 italic mb-5">"{{ scenario.vp_question }}"</p>
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-    <!-- Left 2/3: the narrowing-question transcript, sized to its own content -->
-    <div class="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+    <!-- Transcript: narrow when short (1-2 steps), wide when longer (3-4 steps) -->
+    <div class="{{ 'lg:col-span-1' if short_transcript else 'lg:col-span-2' }} {{ 'lg:sticky lg:top-24' if short_transcript else '' }} bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
       <div class="flex items-center justify-between mb-4">
         <div class="text-[13px] font-semibold text-slate-700">Diagnostic transcript</div>
         <span class="text-[11px] font-medium text-slate-400">Resolved in {{ scenario.transcript|length }} check{{ 's' if scenario.transcript|length != 1 else '' }}</span>
@@ -40,8 +44,9 @@
       </a>
     </div>
 
-    <!-- Right 1/3: diagnosis + payoff — sticky, natural height, never stretched -->
-    <div class="lg:sticky lg:top-24 bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-5">
+    <!-- Diagnosis: wide when transcript is short (more width = fewer wrapped lines = shorter
+         card), narrow + sticky when transcript is the longer/wider side -->
+    <div class="{{ 'lg:col-span-2' if short_transcript else 'lg:col-span-1' }} {{ '' if short_transcript else 'lg:sticky lg:top-24' }} bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-5">
       <div>
         <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold uppercase tracking-wide px-2.5 py-1">Diagnosis</span>
         <p class="mt-3 text-[15px] font-bold text-slate-900 leading-snug">{{ scenario.diagnosis.title }}</p>
