@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Growth Suite — Experiment Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','ui-sans-serif','system-ui','sans-serif']}}}};</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body class="antialiased font-sans bg-white text-slate-900">
+
+<header class="w-full bg-indigo-600 sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-8 h-14 flex items-center justify-between border-b border-white/10">
+    <span class="text-lg font-bold tracking-tight text-white">Growth<span class="text-indigo-200">Suite</span></span>
+    <span class="inline-flex items-center gap-1.5 rounded-full bg-white/15 text-white text-xs font-medium px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>Live · Demo data</span>
+  </div>
+  <div class="max-w-7xl mx-auto px-8 h-12 flex items-center">
+    <nav class="flex items-center gap-1">
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-indigo-100 hover:text-white hover:bg-white/10"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>Overview</a>
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-indigo-100 hover:text-white hover:bg-white/10"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.42-4.03 8-9 8-1.5 0-2.9-.32-4.13-.9L3 20l1.2-3.6A7.94 7.94 0 0 1 3 12c0-4.42 4.03-8 9-8s9 3.58 9 8Z"/></svg>First Response</a>
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-indigo-100 hover:text-white hover:bg-white/10"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 8.5v6.2l-4 2.1v-8.3L3 4Z"/></svg>Funnel Diagnostics</a>
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-indigo-100 hover:text-white hover:bg-white/10"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3Z"/><path d="M9 7v13M15 4v13"/></svg>Lifecycle Architect</a>
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold whitespace-nowrap text-white bg-white/15"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v5.7L4.6 18a1.9 1.9 0 0 0 1.65 2.85h11.5A1.9 1.9 0 0 0 19.4 18L14 8.7V3"/><path d="M7.5 14.5h9"/></svg>Experiment Designer</a>
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-indigo-100 hover:text-white hover:bg-white/10"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Results &amp; Learnings</a>
+    </nav>
+  </div>
+</header>
+
+<main class="bg-white">
+  <div class="max-w-7xl mx-auto px-8 py-10">
+
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">Experiment Designer</h1>
+      <p class="text-sm text-slate-500 mt-0.5">Turn a diagnosed leak or journey stage into a properly powered, pre-committed test.</p>
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div class="flex flex-col"><span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Brand</span><select class="text-xs bg-slate-50 border border-slate-200 rounded-md p-1.5 font-medium text-slate-700"><option>Verdant Skincare</option></select></div>
+        <div class="flex flex-col"><span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Baseline rate</span><input class="text-xs bg-slate-50 border border-slate-200 rounded-md p-1.5 font-medium text-slate-700" value="18%"></div>
+        <div class="flex flex-col"><span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Min. detectable effect</span><input class="text-xs bg-slate-50 border border-slate-200 rounded-md p-1.5 font-medium text-slate-700" value="+3pp"></div>
+        <div class="flex flex-col justify-end"><button class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-lg shadow-sm">Design experiment</button></div>
+      </div>
+    </div>
+
+    <!-- Equal-height columns (grid default stretch) — both sides carry comparable content weight here
+         (hypothesis+stats+chart vs. risk narrative+guardrails+decision rule), so unlike Lifecycle's
+         sidebar this is the "two comparable panels" case where stretch + justify-between is right.
+         Historical outcomes bar chart dropped from the left: it restated the same 3.4pp SHIP fact
+         already covered in prose under "Historical precedent" on the right — redundant, not new
+         information. Guardrail metrics and the decision rule moved into the right panel instead of two
+         more full-width sections below, since they're both "what makes this ship/kill" facts.
+         Hypothesis moved into the left column (not full-width) — a one-sentence statement spanning the
+         whole page read as a mostly-empty banner; as a left-column card it also adds real height to
+         that column, which is most of the fix for the blank-space gap versus the right panel. -->
+    <div class="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-7 flex flex-col gap-6">
+        <div class="p-5 bg-white border border-slate-200 rounded-xl shadow-sm">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Committed experiment hypothesis</span>
+          <p class="text-[15px] font-bold text-slate-900 italic leading-snug">"Sending a day-28 'reorder in 30 seconds' WhatsApp nudge, no discount, to at-risk customers will lift M2 repeat-purchase rate."</p>
+        </div>
+
+        <div class="flex-1 flex flex-col justify-between bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+          <div>
+            <h3 class="text-[11px] font-bold uppercase tracking-wide text-slate-400 border-b border-slate-100 pb-3 mb-4">Statistical parameters</h3>
+            <div class="grid grid-cols-3 gap-3 text-center mb-6">
+              <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg"><span class="text-[9.5px] font-bold text-slate-400 block uppercase tracking-wide">Sample / arm</span><span class="text-lg font-bold text-slate-900 block mt-0.5">1,240</span></div>
+              <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg"><span class="text-[9.5px] font-bold text-slate-400 block uppercase tracking-wide">Est. duration</span><span class="text-lg font-bold text-indigo-700 block mt-0.5">3.9 days</span></div>
+              <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg"><span class="text-[9.5px] font-bold text-slate-400 block uppercase tracking-wide">Confidence / power</span><span class="text-lg font-bold text-slate-900 block mt-0.5">95% / 80%</span></div>
+            </div>
+            <div class="text-[13px] font-semibold text-slate-700 mb-2">Power curve — sample size vs. minimum detectable effect</div>
+            <div class="h-56"><canvas id="powerCurveChart"></canvas></div>
+          </div>
+          <p class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400 leading-relaxed">Why 1,240/arm: a 3pp MDE needs it — chasing a 1pp effect would need ~9x the sample.</p>
+        </div>
+      </div>
+
+      <!-- Right 5/12 — narrative, guardrails, and decision rule together; justify-between spreads
+           any leftover height across the groups instead of one gap. -->
+      <div class="lg:col-span-5 bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col">
+        <div class="flex-1 flex flex-col justify-between gap-4">
+          <div>
+            <div class="flex items-center space-x-2 mb-4">
+              <span class="p-1.5 bg-indigo-50 border border-indigo-100 rounded text-indigo-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 01-2 2h0a2 2 0 01-2-2v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></span>
+              <h3 class="text-sm font-semibold tracking-wide text-slate-800">Risk &amp; rationale</h3>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed p-3 bg-slate-50 rounded-lg border border-slate-200/60 font-medium text-slate-800">Small, fast test — the binding constraint is opt-out risk, not statistical power.</p>
+            <p class="mt-3 text-xs text-slate-600 leading-relaxed">Primary risk is message fatigue — this is the third WhatsApp touch in 28 days for this cohort.</p>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100">
+            <div class="text-[10.5px] font-bold uppercase tracking-wide text-slate-400 mb-1.5">Historical precedent</div>
+            <p class="text-xs text-slate-600 leading-relaxed">A comparable code-free nudge for this brand shipped with a 3.4pp lift and negligible opt-out impact — a good prior that this pattern works here.</p>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100">
+            <div class="text-[10.5px] font-bold uppercase tracking-wide text-slate-400 mb-2">Guardrail metrics</div>
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between text-[11.5px] p-2 bg-slate-50 border border-slate-200 rounded-lg"><span class="font-semibold text-slate-700">WhatsApp opt-out rate</span><span class="text-slate-500">Safe &lt;+1.5pp · Kill ≥+1.5pp</span></div>
+              <div class="flex items-center justify-between text-[11.5px] p-2 bg-slate-50 border border-slate-200 rounded-lg"><span class="font-semibold text-slate-700">Full-price order share</span><span class="text-slate-500">Safe flat/better · Kill drops</span></div>
+              <div class="flex items-center justify-between text-[11.5px] p-2 bg-slate-50 border border-slate-200 rounded-lg"><span class="font-semibold text-slate-700">Support ticket volume</span><span class="text-slate-500">Safe flat · Kill spikes</span></div>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100">
+            <div class="text-[10.5px] font-bold uppercase tracking-wide text-slate-400 mb-2">Decision rule</div>
+            <div class="space-y-1.5">
+              <div class="flex items-start gap-2"><span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">Ship</span><p class="text-[11.5px] text-slate-600 leading-snug">M2 lift ≥ 3pp with opt-out rate flat or better</p></div>
+              <div class="flex items-start gap-2"><span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shrink-0">Extend</span><p class="text-[11.5px] text-slate-600 leading-snug">Directionally positive but under-powered by day 4</p></div>
+              <div class="flex items-start gap-2"><span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 shrink-0">Kill</span><p class="text-[11.5px] text-slate-600 leading-snug">Opt-out rate rises &gt; 1.5pp regardless of lift</p></div>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 text-[11px] text-slate-400 flex items-center justify-between">
+            <span>Engine: deterministic</span><span>Demo fixture</span>
+          </div>
+        </div>
+
+        <a href="#" class="mt-4 flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-[13px] rounded-lg shadow-sm transition-colors">
+          Go to Results &amp; Learnings
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+(function () {
+  if (typeof Chart === 'undefined') { console.warn('Chart.js failed to load from CDN — skipping chart render.'); return; }
+  var ctx = document.getElementById('powerCurveChart');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [1,2,3,4,5,6],
+        datasets: [{ label: 'Sample size per arm', data: [11200,2800,1240,700,450,310], borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.08)', fill: true, tension: 0.3, pointBackgroundColor: '#6366f1' }],
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { type: 'logarithmic', grid: { color: '#e2e8f0' }, title: { display: true, text: 'Sample size (log)', font: { size: 10 } } },
+          x: { grid: { display: false }, title: { display: true, text: 'MDE (pp)', font: { size: 10 } } },
+        },
+      },
+    });
+  }
+})();
+</script>
+</body>
+</html>

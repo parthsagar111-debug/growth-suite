@@ -1,0 +1,16 @@
+{% macro tool_card(tool) %}
+<a href="{{ tool.href }}" class="group block rounded-xl border border-slate-200 bg-white p-6 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-200/60 hover:-translate-y-0.5 transition-all duration-200">
+  <div class="flex items-start justify-between">
+    <div class="w-10 h-10 rounded-lg bg-{{ tool.kind }}-50 text-{{ tool.kind }}-600 flex items-center justify-center">
+      {{ tool.icon_svg | safe }}
+    </div>
+    <span class="text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-{{ tool.kind }}-50 text-{{ tool.kind }}-600">{{ tool.step }}</span>
+  </div>
+  <h3 class="mt-4 text-[15px] font-bold text-slate-900">{{ tool.name }}</h3>
+  <p class="mt-1.5 text-[13px] leading-relaxed text-slate-500">{{ tool.desc }}</p>
+  <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+    <span class="text-[13px] font-semibold text-indigo-600">Open tool</span>
+    <svg class="w-4 h-4 text-indigo-600 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </div>
+</a>
+{% endmacro %}

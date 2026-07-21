@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Growth Suite — Results &amp; Learnings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','ui-sans-serif','system-ui','sans-serif']}}}};</script>
+</head>
+<body class="antialiased font-sans bg-white text-slate-900">
+
+<header class="w-full bg-indigo-600 sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-8 h-14 flex items-center justify-between border-b border-white/10">
+    <span class="text-lg font-bold tracking-tight text-white">Growth<span class="text-indigo-200">Suite</span></span>
+    <span class="inline-flex items-center gap-1.5 rounded-full bg-white/15 text-white text-xs font-medium px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>Live · Demo data</span>
+  </div>
+  <div class="max-w-7xl mx-auto px-8 h-12 flex items-center">
+    <nav class="flex items-center gap-1">
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-indigo-100 hover:text-white hover:bg-white/10"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>Overview</a>
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-indigo-100 hover:text-white hover:bg-white/10"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.42-4.03 8-9 8-1.5 0-2.9-.32-4.13-.9L3 20l1.2-3.6A7.94 7.94 0 0 1 3 12c0-4.42 4.03-8 9-8s9 3.58 9 8Z"/></svg>First Response</a>
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-indigo-100 hover:text-white hover:bg-white/10"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 8.5v6.2l-4 2.1v-8.3L3 4Z"/></svg>Funnel Diagnostics</a>
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-indigo-100 hover:text-white hover:bg-white/10"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3Z"/><path d="M9 7v13M15 4v13"/></svg>Lifecycle Architect</a>
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-indigo-100 hover:text-white hover:bg-white/10"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v5.7L4.6 18a1.9 1.9 0 0 0 1.65 2.85h11.5A1.9 1.9 0 0 0 19.4 18L14 8.7V3"/><path d="M7.5 14.5h9"/></svg>Experiment Designer</a>
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold whitespace-nowrap text-white bg-white/15"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Results &amp; Learnings</a>
+    </nav>
+  </div>
+</header>
+
+<main class="bg-white">
+  <div class="max-w-7xl mx-auto px-8 py-10">
+
+    <!-- Full top-section relayout: H1 now has a subtitle line, matching every other page's header
+         (this was the one page missing it). Executive scorecard moved above the grading form — you
+         want the state of play before you file a new grade, not after. The form and its result preview
+         used to sit in one undifferentiated card; split into two cards with a connecting label so it
+         reads as input → output, not one blob (the result shown is a preview of the post-grade state,
+         same convention as First Response's filled walkthrough). -->
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">Results &amp; Learnings</h1>
+      <p class="text-sm text-slate-500 mt-0.5">Close the loop on a shipped test with a deterministic verdict, then track what's working across brands.</p>
+    </div>
+
+    <!-- Whole-page relayout: one continuous 7/5 grid instead of stacked full-width sections that only
+         became 2-column near the bottom. The mismatch you flagged (short card next to a tall one) came
+         from localizing the sidebar-vs-feed split to just the log section — the real fix is to make
+         the ENTIRE right side one sticky sidebar (scorecard + insights + CTA) running the full height
+         of the page, next to the ENTIRE left side as one growing stack (form → result → log). Same
+         principle as Lifecycle Architect's sidebar, just applied to the whole page instead of one
+         sub-section. The "Which experiment?" dropdown no longer stretches to fill the full page width
+         either — it's now capped and confined to the narrower 7/12 column. -->
+    <div class="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Left 7/12 — action + growing history -->
+      <div class="lg:col-span-7 flex flex-col gap-6">
+        <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+          <h3 class="text-sm font-semibold text-slate-800">Grade an outcome</h3>
+          <p class="text-xs text-slate-500 mt-1">This step is deliberately not AI — the verdict is computed by comparing your actual numbers against the thresholds already agreed to in Experiment Designer.</p>
+          <form class="mt-4">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-500 mb-1">Which experiment?</label>
+              <select class="w-full max-w-md rounded-lg border border-slate-200 px-3 py-1.5 text-sm"><option>Code-free at-risk nudge lifts M2 retention · 2026-07-14</option></select>
+            </div>
+            <div class="mt-3 flex flex-wrap items-end gap-3">
+              <div class="w-[92px] shrink-0">
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1">M2 lift (pp)</label>
+                <input type="number" step="0.1" value="3.4" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm">
+              </div>
+              <div class="w-[92px] shrink-0">
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1">Opt-out Δ (pp)</label>
+                <input type="number" step="0.1" value="0.3" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm">
+              </div>
+              <div class="w-[92px] shrink-0">
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1">Support Δ</label>
+                <input type="number" value="0" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm">
+              </div>
+              <button type="submit" class="shrink-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-lg transition">Grade this experiment</button>
+            </div>
+          </form>
+        </div>
+
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <span class="text-[10.5px] font-bold uppercase tracking-wide text-slate-400">Result</span>
+            <div class="h-px flex-1 bg-slate-200"></div>
+          </div>
+          <div class="rounded-xl border border-emerald-200 bg-emerald-50/30 p-5">
+            <span class="text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200">SHIP</span>
+            <p class="mt-2 text-[13.5px] text-slate-700">Graded deterministically: lift 3.4pp, opt-out delta 0.3pp against the committed decision rule — no model involved in this call.</p>
+            <div class="mt-3 rounded-lg bg-white border border-slate-200 px-4 py-3"><div class="text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1">Takeaway</div><p class="text-[13px] text-slate-600 leading-relaxed">Clears the SHIP threshold with no guardrail breach — roll out broadly.</p></div>
+            <span class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white text-emerald-700 border border-emerald-200 text-[12px] font-semibold px-2.5 py-1">✓ Saved to this brand's memory</span>
+          </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+          <h3 class="text-[11px] font-bold uppercase tracking-wide text-slate-400 border-b border-slate-100 pb-3 mb-4">Learnings log</h3>
+          <div class="space-y-3">
+            <div class="rounded-lg border border-slate-200 bg-white p-4 flex items-center gap-3"><span class="text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200">SHIP</span><span class="text-[12.5px] text-slate-500">2026-05-15 · Verdant Skincare · lift 3.4pp</span></div>
+            <div class="rounded-lg border border-slate-200 bg-white p-4 flex items-center gap-3"><span class="text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full border bg-rose-50 text-rose-700 border-rose-200">KILL</span><span class="text-[12.5px] text-slate-500">2026-06-04 · Hearth &amp; Home Co · lift 2.1pp</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right 5/12 — one sticky sidebar for the full page: scorecard + insights + CTA -->
+      <div class="lg:col-span-5 lg:sticky lg:top-24 bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <h3 class="text-[11px] font-bold uppercase tracking-wide text-slate-400 border-b border-slate-100 pb-3 mb-4">Executive scorecard</h3>
+        <div class="grid grid-cols-3 gap-3 text-center mb-5">
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg"><span class="text-[9.5px] font-bold text-slate-400 block uppercase tracking-wide">Graded</span><span class="text-lg font-bold text-slate-900 block mt-0.5">2</span></div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg"><span class="text-[9.5px] font-bold text-slate-400 block uppercase tracking-wide">Win rate</span><span class="text-lg font-bold text-slate-900 block mt-0.5">50%</span></div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg"><span class="text-[9.5px] font-bold text-slate-400 block uppercase tracking-wide">Cum. lift</span><span class="text-lg font-bold text-emerald-700 block mt-0.5">3.4pp</span></div>
+        </div>
+
+        <div class="flex items-center space-x-2 mb-4">
+          <span class="p-1.5 bg-indigo-50 border border-indigo-100 rounded text-indigo-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 01-2 2h0a2 2 0 01-2-2v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></span>
+          <h3 class="text-sm font-semibold tracking-wide text-slate-800">Pattern recognition</h3>
+        </div>
+        <p class="text-xs text-slate-600 leading-relaxed p-3 bg-slate-50 rounded-lg border border-slate-200/60 font-medium text-slate-800">Across both brands, guardrail metrics — not the primary lift — decided the verdict. Worth treating guardrail design as seriously as the hypothesis itself.</p>
+
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <div class="text-[10.5px] font-bold uppercase tracking-wide text-slate-400 mb-2">Verdict distribution</div>
+          <div class="flex h-5 rounded-md overflow-hidden bg-slate-100">
+            <div class="bg-emerald-500" style="width:50%"></div>
+            <div class="bg-rose-500" style="width:50%"></div>
+          </div>
+          <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-500">
+            <span><span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1"></span>SHIP 1</span>
+            <span><span class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1"></span>EXTEND 0</span>
+            <span><span class="inline-block w-2 h-2 rounded-full bg-rose-500 mr-1"></span>KILL 1</span>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <div class="text-[10.5px] font-bold uppercase tracking-wide text-slate-400 mb-2">Recurring learning themes</div>
+          <div class="space-y-2">
+            <div><div class="flex justify-between text-[11.5px] font-medium text-slate-600 mb-1"><span>Code-free nudges outperform discount-led ones</span><span class="font-bold text-slate-900">2</span></div><div class="w-full bg-slate-100 h-4 rounded-md overflow-hidden"><div class="h-full bg-indigo-500" style="width:100%"></div></div></div>
+            <div><div class="flex justify-between text-[11.5px] font-medium text-slate-600 mb-1"><span>Guardrails catch real risk, not just noise</span><span class="font-bold text-slate-900">2</span></div><div class="w-full bg-slate-100 h-4 rounded-md overflow-hidden"><div class="h-full bg-indigo-500" style="width:100%"></div></div></div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400 flex items-center justify-between">
+          <span>Engine: deterministic</span><span>Demo fixture</span>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-100 space-y-2.5">
+          <p class="text-[12px] text-slate-500 leading-relaxed">Loop back to a fresh diagnosis to keep the flywheel turning — every grade here sharpens the next Experiment Designer run's Similar-Experiment Analyst.</p>
+          <a href="#" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-[13px] rounded-lg shadow-sm transition-colors">
+            Start a new diagnosis
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</body>
+</html>

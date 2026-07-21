@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Growth Suite — Overview (Two-row nav)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } },
+  };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.12/htmx.min.js"></script>
+<style> html { scroll-behavior: smooth; } ::selection { background: #e0e7ff; } </style>
+</head>
+<body class="antialiased font-sans bg-white text-slate-900">
+
+<!-- ══════════════════════ Variant A: two-row top nav ══════════════════════
+     Row 1: logo + status (utility strip). Row 2: dedicated full-width row
+     just for nav links — never competes with the logo/badge for space, so
+     six full-label items always fit with no scroll or wrap. -->
+<header class="w-full bg-indigo-600">
+  <div class="max-w-7xl mx-auto px-8 h-14 flex items-center justify-between border-b border-white/10">
+    <span class="text-lg font-bold tracking-tight text-white">Growth<span class="text-indigo-200">Suite</span></span>
+    <span class="inline-flex items-center gap-1.5 rounded-full bg-white/15 text-white text-xs font-medium px-2.5 py-1">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>
+      Live · Demo data
+    </span>
+  </div>
+  <div class="max-w-7xl mx-auto px-8 h-12 flex items-center">
+    <nav class="flex items-center gap-1">
+      <a href="/" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-white/15 whitespace-nowrap">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+        Overview
+      </a>
+      <a href="/first-response" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-100 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.42-4.03 8-9 8-1.5 0-2.9-.32-4.13-.9L3 20l1.2-3.6A7.94 7.94 0 0 1 3 12c0-4.42 4.03-8 9-8s9 3.58 9 8Z"/></svg>
+        First Response
+      </a>
+      <a href="/funnel-diagnostics" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-100 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 8.5v6.2l-4 2.1v-8.3L3 4Z"/></svg>
+        Funnel Diagnostics
+      </a>
+      <a href="/lifecycle-architect" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-100 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3Z"/><path d="M9 7v13M15 4v13"/></svg>
+        Lifecycle Architect
+      </a>
+      <a href="/experiment-designer" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-100 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v5.7L4.6 18a1.9 1.9 0 0 0 1.65 2.85h11.5A1.9 1.9 0 0 0 19.4 18L14 8.7V3"/><path d="M7.5 14.5h9"/></svg>
+        Experiment Designer
+      </a>
+      <a href="/results-learnings" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-100 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        Results &amp; Learnings
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main class="bg-white">
+  <div class="max-w-7xl mx-auto px-8 py-10">
+
+    <h1 class="text-[28px] font-bold tracking-tight text-slate-900">Growth Suite</h1>
+    <p class="mt-1.5 text-[15px] text-slate-500 max-w-2xl">
+      Triage the question, diagnose your conversion funnel, design targeted fixes, test improvements, and preserve workspace history — all under one roof.
+    </p>
+
+    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <a href="/first-response" class="group block rounded-xl border border-slate-200 bg-white p-6 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-200/60 hover:-translate-y-0.5 transition-all duration-200">
+        <div class="flex items-start justify-between">
+          <div class="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.42-4.03 8-9 8-1.5 0-2.9-.32-4.13-.9L3 20l1.2-3.6A7.94 7.94 0 0 1 3 12c0-4.42 4.03-8 9-8s9 3.58 9 8Z"/></svg>
+          </div>
+          <span class="text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600">Step 1 · Triage</span>
+        </div>
+        <h3 class="mt-4 text-[15px] font-bold text-slate-900">First Response</h3>
+        <p class="mt-1.5 text-[13px] leading-relaxed text-slate-500">Get asked why a metric is down? Run a branching diagnostic chat — no data upload — that tells you exactly what to investigate, in what order.</p>
+        <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-[13px] font-semibold text-indigo-600">Open tool</span>
+          <svg class="w-4 h-4 text-indigo-600 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+      <a href="/funnel-diagnostics" class="group block rounded-xl border border-slate-200 bg-white p-6 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-200/60 hover:-translate-y-0.5 transition-all duration-200">
+        <div class="flex items-start justify-between">
+          <div class="w-10 h-10 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 8.5v6.2l-4 2.1v-8.3L3 4Z"/></svg>
+          </div>
+          <span class="text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-rose-50 text-rose-600">Step 2 · Diagnose</span>
+        </div>
+        <h3 class="mt-4 text-[15px] font-bold text-slate-900">Funnel Diagnostics</h3>
+        <p class="mt-1.5 text-[13px] leading-relaxed text-slate-500">Upload funnel snapshots or order-level history to capture leaks, inspect drop-off anomalies, and get an AI narrative alongside the full dashboard.</p>
+        <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-[13px] font-semibold text-indigo-600">Open tool</span>
+          <svg class="w-4 h-4 text-indigo-600 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+      <a href="/lifecycle-architect" class="group block rounded-xl border border-slate-200 bg-white p-6 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-200/60 hover:-translate-y-0.5 transition-all duration-200">
+        <div class="flex items-start justify-between">
+          <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3Z"/><path d="M9 7v13M15 4v13"/></svg>
+          </div>
+          <span class="text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-blue-50 text-blue-600">Step 3 · Design</span>
+        </div>
+        <h3 class="mt-4 text-[15px] font-bold text-slate-900">Lifecycle Architect</h3>
+        <p class="mt-1.5 text-[13px] leading-relaxed text-slate-500">Map a targeted retention journey — a stage-by-stage WhatsApp sequence, custom-written and scored against AI tone benchmarks.</p>
+        <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-[13px] font-semibold text-indigo-600">Open tool</span>
+          <svg class="w-4 h-4 text-indigo-600 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+      <a href="/experiment-designer" class="group block rounded-xl border border-slate-200 bg-white p-6 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-200/60 hover:-translate-y-0.5 transition-all duration-200">
+        <div class="flex items-start justify-between">
+          <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v5.7L4.6 18a1.9 1.9 0 0 0 1.65 2.85h11.5A1.9 1.9 0 0 0 19.4 18L14 8.7V3"/><path d="M7.5 14.5h9"/></svg>
+          </div>
+          <span class="text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-amber-50 text-amber-600">Step 4 · Test</span>
+        </div>
+        <h3 class="mt-4 text-[15px] font-bold text-slate-900">Experiment Designer</h3>
+        <p class="mt-1.5 text-[13px] leading-relaxed text-slate-500">Construct a statistically defensible test: translate a hypothesis into a sample-size spec, power calculations, and guardrails.</p>
+        <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-[13px] font-semibold text-indigo-600">Open tool</span>
+          <svg class="w-4 h-4 text-indigo-600 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+      <a href="/results-learnings" class="group block rounded-xl border border-slate-200 bg-white p-6 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-200/60 hover:-translate-y-0.5 transition-all duration-200">
+        <div class="flex items-start justify-between">
+          <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+          </div>
+          <span class="text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600">Step 5 · Learn</span>
+        </div>
+        <h3 class="mt-4 text-[15px] font-bold text-slate-900">Results &amp; Learnings</h3>
+        <p class="mt-1.5 text-[13px] leading-relaxed text-slate-500">Grade a shipped experiment against the decision rule it committed to, and log what was learned back into shared memory.</p>
+        <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-[13px] font-semibold text-indigo-600">Open tool</span>
+          <svg class="w-4 h-4 text-indigo-600 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+    </div>
+
+    <details class="group mt-8 rounded-xl border border-slate-200 bg-white px-5 py-4 open:pb-5">
+      <summary class="flex items-center justify-between cursor-pointer select-none list-none">
+        <span class="text-sm font-semibold text-slate-700">How this works</span>
+        <svg class="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </summary>
+      <div class="mt-3 space-y-3 text-[13.5px] leading-relaxed text-slate-500">
+        <p>Every number on every page is computed by deterministic code — never guessed by a model. AI's job is layered on top: multiple named agents per tool interpret, compare, and narrate those numbers, and every tool shows its full dashboard before showing a recommendation.</p>
+        <p>The one deliberate exception is grading: SHIP/KILL/EXTEND is decided by comparing actuals against committed thresholds — by code, not by a model.</p>
+        <p>First Response is the one exception to the pattern above — no data upload, no shared memory, just a branching diagnostic chat that tells you what to check before you touch the other four tools.</p>
+      </div>
+    </details>
+
+  </div>
+</main>
+
+</body>
+</html>

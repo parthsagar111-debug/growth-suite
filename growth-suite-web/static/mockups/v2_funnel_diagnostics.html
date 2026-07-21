@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Growth Suite — Funnel Diagnostics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','ui-sans-serif','system-ui','sans-serif']}}}};</script>
+</head>
+<body class="antialiased font-sans bg-white text-slate-900">
+
+<header class="w-full bg-indigo-600 sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-8 h-14 flex items-center justify-between border-b border-white/10">
+    <span class="text-lg font-bold tracking-tight text-white">Growth<span class="text-indigo-200">Suite</span></span>
+    <span class="inline-flex items-center gap-1.5 rounded-full bg-white/15 text-white text-xs font-medium px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>Live · Demo data</span>
+  </div>
+  <div class="max-w-7xl mx-auto px-8 h-12 flex items-center">
+    <nav class="flex items-center gap-1">
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-indigo-100 hover:text-white hover:bg-white/10"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>Overview</a>
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-indigo-100 hover:text-white hover:bg-white/10"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.42-4.03 8-9 8-1.5 0-2.9-.32-4.13-.9L3 20l1.2-3.6A7.94 7.94 0 0 1 3 12c0-4.42 4.03-8 9-8s9 3.58 9 8Z"/></svg>First Response</a>
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold whitespace-nowrap text-white bg-white/15"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 8.5v6.2l-4 2.1v-8.3L3 4Z"/></svg>Funnel Diagnostics</a>
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-indigo-100 hover:text-white hover:bg-white/10"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3Z"/><path d="M9 7v13M15 4v13"/></svg>Lifecycle Architect</a>
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-indigo-100 hover:text-white hover:bg-white/10"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v5.7L4.6 18a1.9 1.9 0 0 0 1.65 2.85h11.5A1.9 1.9 0 0 0 19.4 18L14 8.7V3"/><path d="M7.5 14.5h9"/></svg>Experiment Designer</a>
+      <a class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap text-indigo-100 hover:text-white hover:bg-white/10"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Results &amp; Learnings</a>
+    </nav>
+  </div>
+</header>
+
+<main class="bg-white">
+  <div class="max-w-7xl mx-auto px-8 py-10">
+
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-6 rounded-xl border border-slate-200 shadow-sm gap-4">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Funnel Diagnostics</h1>
+        <p class="text-sm text-slate-500 mt-0.5">Upload funnel metrics or order history to get a diagnosed leak, a full analysis dashboard, and ranked plays.</p>
+      </div>
+      <div class="flex flex-wrap items-end gap-3">
+        <div class="flex flex-col"><span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Data mode</span><select class="text-xs bg-slate-50 border border-slate-200 rounded-md p-1.5 font-medium text-slate-700"><option>Sample Demo</option><option>Metrics Snapshot</option><option>Order-Level Upload</option></select></div>
+        <div class="flex flex-col"><span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Scope context</span><select class="text-xs bg-slate-50 border border-slate-200 rounded-md p-1.5 font-medium text-slate-700"><option>Verdant Skincare</option></select></div>
+        <div class="flex flex-col"><span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Segment</span><select class="text-xs bg-slate-50 border border-slate-200 rounded-md p-1.5 font-medium text-slate-700"><option>All channels</option></select></div>
+        <button class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-lg shadow-sm">Run Analysis</button>
+      </div>
+    </div>
+
+    <!-- Following the Gemini funnel.html structure: 7/5 split (was 2/1), cohort heatmap removed,
+         Ranked Playbook merged into the synthesis panel instead of a separate section, single
+         consolidated anomaly callout. Kept as real data rather than Gemini's placeholder text, and
+         kept the 5th funnel bar (Gemini's anomaly copy references "5. Repeat Conversion" but that
+         mockup only drew 4 bars — restoring the bar so the callout points at something real). -->
+    <div class="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Left 7/12 -->
+      <div class="lg:col-span-7 space-y-6">
+        <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+          <h3 class="text-sm font-semibold tracking-wide text-slate-800 mb-6">Attribution funnel volume &amp; drop-offs</h3>
+          <div class="space-y-4">
+            <div><div class="flex justify-between text-xs font-medium text-slate-600 mb-1"><span>1. Visit</span><span class="font-bold text-slate-900">100,000</span></div><div class="w-full bg-slate-100 h-6 rounded-md overflow-hidden"><div class="bg-indigo-500 h-full w-full"></div></div></div>
+            <div><div class="flex justify-between text-xs font-medium text-slate-600 mb-1"><span>2. Add to cart</span><span class="font-bold text-slate-900">32,000 <span class="text-slate-400 font-normal">(-68%)</span></span></div><div class="w-full bg-slate-100 h-6 rounded-md overflow-hidden"><div class="bg-indigo-500 h-full" style="width:32%"></div></div></div>
+            <div><div class="flex justify-between text-xs font-medium text-slate-600 mb-1"><span>3. Checkout</span><span class="font-bold text-slate-900">14,000 <span class="text-slate-400 font-normal">(-56%)</span></span></div><div class="w-full bg-slate-100 h-6 rounded-md overflow-hidden"><div class="bg-indigo-500 h-full" style="width:14%"></div></div></div>
+            <div><div class="flex justify-between text-xs font-medium text-slate-600 mb-1"><span>4. Purchase</span><span class="font-bold text-slate-900">9,800 <span class="text-slate-400 font-normal">(-30%)</span></span></div><div class="w-full bg-slate-100 h-6 rounded-md overflow-hidden"><div class="bg-indigo-500 h-full" style="width:9.8%"></div></div></div>
+            <div><div class="flex justify-between text-xs font-medium text-slate-600 mb-1"><span>5. Repeat (M2)</span><span class="font-bold text-slate-900">1,764 <span class="text-slate-400 font-normal">(-82%)</span></span></div><div class="w-full bg-slate-100 h-6 rounded-md overflow-hidden"><div class="bg-emerald-500 h-full" style="width:1.8%"></div></div></div>
+            <div class="p-3 bg-rose-50 border border-rose-100 rounded-lg flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center space-x-2 text-xs text-rose-700 font-medium"><span class="h-2 w-2 rounded-full bg-rose-500 animate-pulse"></span><span>1 leak anomaly pinpointed: <strong>5. Repeat (M2)</strong> is the funnel's weakest point</span></div>
+              <span class="text-xs font-bold text-rose-800 bg-white px-2 py-0.5 rounded border border-rose-200">1,764 remaining (1.8%)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Benchmark offset analysis</span>
+            <div class="flex items-baseline space-x-2 mt-1"><span class="text-2xl font-bold text-rose-600">18%</span><span class="text-xs text-slate-500">vs 29% category benchmark</span></div>
+            <p class="text-xs text-slate-400 mt-2">Category benchmark for M1→M2 in beauty D2C sits near 27–32%; this brand is roughly 10pp under.</p>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Discount dependence index</span>
+            <div class="flex items-baseline space-x-2 mt-1"><span class="text-2xl font-bold text-amber-600">41%</span><span class="text-xs text-slate-500">of repeat orders discount-driven</span></div>
+            <p class="text-xs text-slate-400 mt-2">Median 34 days to second order.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right 5/12 — Diagnostic synthesis + Ranked plays + CTA merged into one card, matching
+           funnel.html's structure. justify-between across [content] / [CTA] absorbs any height
+           difference from the left column so the two cards' bottom edges line up. -->
+      <div class="lg:col-span-5 bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col justify-between">
+        <div class="space-y-5">
+          <div class="flex items-center space-x-2 border-b border-slate-100 pb-3">
+            <span class="p-1.5 bg-indigo-50 border border-indigo-100 rounded text-indigo-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 01-2 2h0a2 2 0 01-2-2v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></span>
+            <h3 class="text-sm font-semibold tracking-wide text-slate-800">Diagnostic synthesis</h3>
+          </div>
+
+          <p class="p-3 bg-slate-50 rounded-lg border border-slate-200/60 font-medium text-slate-800 text-xs leading-relaxed">The leak is a discount-dependent M2 cliff concentrated in paid social — fixable with earlier, code-free retention touchpoints rather than deeper discounting.</p>
+          <p class="text-xs text-slate-600 leading-relaxed">The cliff sits specifically between month 1 and month 2, not a gradual decline — consistent with a missing mid-funnel nudge rather than a product problem, and concentrated in paid social, which retains 6pp worse than organic.</p>
+
+          <div class="space-y-3 pt-1">
+            <span class="text-[10.5px] font-bold uppercase tracking-wide text-slate-400 block">Ranked playbook interventions</span>
+            <div class="p-3.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+              <div class="flex justify-between items-center gap-2">
+                <span class="text-[13px] font-bold text-slate-900">1. WhatsApp win-back at day 35, no discount</span>
+                <span class="shrink-0 px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">High</span>
+              </div>
+              <p class="mt-1 text-xs text-slate-500">Fires before the M2 cliff, leads with education instead of a code.</p>
+            </div>
+            <div class="p-3.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+              <div class="flex justify-between items-center gap-2">
+                <span class="text-[13px] font-bold text-slate-900">2. Bundle second-order incentive at checkout</span>
+                <span class="shrink-0 px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-indigo-50 text-indigo-700 border border-indigo-200">Medium</span>
+              </div>
+              <p class="mt-1 text-xs text-slate-500">Seeds a non-monetary reason to return on order 1.</p>
+            </div>
+            <div class="p-3.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+              <div class="flex justify-between items-center gap-2">
+                <span class="text-[13px] font-bold text-slate-900">3. Reduce discount depth on repeat codes</span>
+                <span class="shrink-0 px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-indigo-50 text-indigo-700 border border-indigo-200">Medium</span>
+              </div>
+              <p class="mt-1 text-xs text-slate-500">Tests how price-elastic month-2 demand really is.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-5 mt-5 border-t border-slate-200 space-y-3">
+          <p class="text-[11.5px] text-slate-500 leading-relaxed"><strong class="text-slate-700">Next playbook action:</strong> Ground the next tool in this brand's real M1→M2 cliff instead of a category guess.</p>
+          <a href="#" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-[13px] rounded-lg shadow-sm transition-colors">
+            Send diagnosis to Lifecycle Architect
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</body>
+</html>

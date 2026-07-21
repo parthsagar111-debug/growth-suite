@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Growth Suite{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } },
+  };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.12/htmx.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  html { scroll-behavior: smooth; }
+  ::selection { background: #e0e7ff; }
+  .htmx-indicator { opacity: 0; transition: opacity 120ms ease; }
+  .htmx-request.htmx-indicator, .htmx-request .htmx-indicator { opacity: 1; }
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body class="antialiased font-sans bg-white text-slate-900">
+
+<!-- ══════════════════════ Top nav — two rows, no sidebar ══════════════════════
+     Row 1: logo + live-status strip. Row 2: dedicated full-width row just
+     for nav links, so all six full-label items always fit with no scroll
+     or wrap regardless of window width. -->
+<header class="w-full bg-indigo-600 sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-8 h-14 flex items-center justify-between border-b border-white/10">
+    <span class="text-lg font-bold tracking-tight text-white">Growth<span class="text-indigo-200">Suite</span></span>
+    <span class="inline-flex items-center gap-1.5 rounded-full bg-white/15 text-white text-xs font-medium px-2.5 py-1">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>
+      Live · Demo data
+    </span>
+  </div>
+  <div class="max-w-7xl mx-auto px-8 h-12 flex items-center">
+    <nav class="flex items-center gap-1">
+      <a href="/" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors {% if active_page == 'overview' %}text-white bg-white/15 font-semibold{% else %}text-indigo-100 hover:text-white hover:bg-white/10{% endif %}">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+        Overview
+      </a>
+      <a href="/first-response" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors {% if active_page == 'first_response' %}text-white bg-white/15 font-semibold{% else %}text-indigo-100 hover:text-white hover:bg-white/10{% endif %}">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.42-4.03 8-9 8-1.5 0-2.9-.32-4.13-.9L3 20l1.2-3.6A7.94 7.94 0 0 1 3 12c0-4.42 4.03-8 9-8s9 3.58 9 8Z"/></svg>
+        First Response
+      </a>
+      <a href="/funnel-diagnostics" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors {% if active_page == 'funnel_diagnostics' %}text-white bg-white/15 font-semibold{% else %}text-indigo-100 hover:text-white hover:bg-white/10{% endif %}">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 8.5v6.2l-4 2.1v-8.3L3 4Z"/></svg>
+        Funnel Diagnostics
+      </a>
+      <a href="/lifecycle-architect" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors {% if active_page == 'lifecycle_architect' %}text-white bg-white/15 font-semibold{% else %}text-indigo-100 hover:text-white hover:bg-white/10{% endif %}">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3Z"/><path d="M9 7v13M15 4v13"/></svg>
+        Lifecycle Architect
+      </a>
+      <a href="/experiment-designer" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors {% if active_page == 'experiment_designer' %}text-white bg-white/15 font-semibold{% else %}text-indigo-100 hover:text-white hover:bg-white/10{% endif %}">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v5.7L4.6 18a1.9 1.9 0 0 0 1.65 2.85h11.5A1.9 1.9 0 0 0 19.4 18L14 8.7V3"/><path d="M7.5 14.5h9"/></svg>
+        Experiment Designer
+      </a>
+      <a href="/results-learnings" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors {% if active_page == 'results_learnings' %}text-white bg-white/15 font-semibold{% else %}text-indigo-100 hover:text-white hover:bg-white/10{% endif %}">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        Results &amp; Learnings
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main class="bg-white min-h-[calc(100vh-104px)]">
+  <div class="max-w-7xl mx-auto px-8 py-10">
+    {% block content %}{% endblock %}
+  </div>
+</main>
+
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

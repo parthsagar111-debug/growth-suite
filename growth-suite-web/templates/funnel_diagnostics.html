@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Funnel Diagnostics · Growth Suite{% endblock %}
+{% block content %}
+
+<form id="funnel-form"
+      hx-post="/funnel-diagnostics/run" hx-target="#funnel-dashboard" hx-swap="innerHTML"
+      hx-encoding="multipart/form-data" hx-indicator="#funnel-loading">
+
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-6 rounded-xl border border-slate-200 shadow-sm gap-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">Funnel Diagnostics</h1>
+      <p class="text-sm text-slate-500 mt-0.5">Upload funnel metrics or order history to get a diagnosed leak, a full analysis dashboard, and ranked plays.</p>
+    </div>
+
+    <div class="flex flex-wrap items-end gap-3">
+      <div class="flex flex-col">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Data mode</span>
+        <select name="mode" id="fr-mode-select" onchange="frFunnelModeChange()"
+                class="text-xs bg-slate-50 border border-slate-200 rounded-md p-1.5 font-medium text-slate-700 focus:outline-none focus:border-indigo-500">
+          <option value="sample">Sample Demo</option>
+          <option value="metrics_snapshot">Metrics Snapshot</option>
+          <option value="order_level">Order-Level Upload</option>
+        </select>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Scope context</span>
+        <select name="brand_id" class="text-xs bg-slate-50 border border-slate-200 rounded-md p-1.5 font-medium text-slate-700 focus:outline-none focus:border-indigo-500">
+          {% for b in brands %}
+          <option value="{{ b.id }}">{{ b.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Segment</span>
+        <select name="segment" class="text-xs bg-slate-50 border border-slate-200 rounded-md p-1.5 font-medium text-slate-700 focus:outline-none focus:border-indigo-500">
+          <option>All channels</option>
+          <option>Paid social</option>
+          <option>Organic</option>
+          <option>Email</option>
+        </select>
+      </div>
+      <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-lg transition tracking-wide shadow-sm">
+        Run Analysis
+      </button>
+    </div>
+  </div>
+
+  <!-- Metrics Snapshot drawer -->
+  <div id="drawer-snapshot" class="hidden mt-3 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+    <p class="text-[13px] text-slate-500 mb-3">Enter the headline numbers you already have — no file needed.</p>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">M1→M2 retention %</label><input type="number" step="0.5" name="snap_m1m2" value="18" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm"></div>
+      <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Discount-dependent repeats %</label><input type="number" step="0.5" name="snap_discount" value="41" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm"></div>
+      <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Median days to 2nd order</label><input type="number" name="snap_days" value="34" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm"></div>
+      <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Category benchmark %</label><input type="number" step="0.5" name="snap_benchmark" value="29" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm"></div>
+      <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Paid social retention %</label><input type="number" step="0.5" name="snap_paid" value="14" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm"></div>
+      <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Organic retention %</label><input type="number" step="0.5" name="snap_organic" value="24" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm"></div>
+      <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Email retention %</label><input type="number" step="0.5" name="snap_email" value="21" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm"></div>
+    </div>
+    <details class="mt-4">
+      <summary class="text-[13px] font-semibold text-indigo-600 cursor-pointer select-none">Funnel stage volumes</summary>
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 mt-3">
+        <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Visits</label><input type="number" name="fn_visit" value="100000" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm"></div>
+        <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Add to cart</label><input type="number" name="fn_cart" value="32000" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm"></div>
+        <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Checkout</label><input type="number" name="fn_checkout" value="14000" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm"></div>
+        <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Purchases</label><input type="number" name="fn_purchase" value="9800" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm"></div>
+        <div><label class="block text-[11px] font-semibold text-slate-500 mb-1">Repeat (M2)</label><input type="number" name="fn_repeat" value="1764" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm"></div>
+      </div>
+    </details>
+  </div>
+
+  <!-- Order-Level drawer -->
+  <div id="drawer-order" class="hidden mt-3 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+    <div class="flex flex-wrap items-center gap-3">
+      <a href="/funnel-diagnostics/sample-csv" class="rounded-lg border border-slate-200 px-3 py-2 text-[13px] font-semibold text-slate-600 hover:border-slate-300">↓ Download CSV Template</a>
+      <input type="file" name="order_csv" accept=".csv" class="text-[13px] text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-600 file:text-[13px] file:font-semibold file:px-3 file:py-2 hover:file:bg-indigo-100">
+    </div>
+    <p class="mt-2 text-[12px] text-slate-400">Columns: {{ order_csv_columns | join(', ') }}</p>
+  </div>
+</form>
+
+<div id="funnel-loading" class="htmx-indicator mt-4 flex items-center gap-2 text-[13px] text-slate-400">
+  <svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5" stroke-opacity="0.2"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+  Running the deterministic engine…
+</div>
+
+<div id="funnel-dashboard" class="mt-2">
+  <div class="mt-6 rounded-xl border border-dashed border-slate-300 bg-slate-50/60 px-10 py-14 text-center">
+    <p class="text-sm text-slate-400">Run a diagnosis above to see the full dashboard.</p>
+  </div>
+</div>
+
+<script>
+  function frFunnelModeChange() {
+    var mode = document.getElementById('fr-mode-select').value;
+    document.getElementById('drawer-snapshot').classList.toggle('hidden', mode !== 'metrics_snapshot');
+    document.getElementById('drawer-order').classList.toggle('hidden', mode !== 'order_level');
+  }
+</script>
+{% endblock %}

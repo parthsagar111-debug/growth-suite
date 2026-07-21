@@ -1,0 +1,284 @@
+/* ─────────────────────────────────────────────────────────────────────
+   Growth Suite — shared design system (FastAPI + Jinja2 + HTMX build)
+
+   Same palette and visual language as the Streamlit app's lib/style.py,
+   translated into real CSS with no framework DOM constraints to fight —
+   this file is the whole point of the rewrite: native CSS Grid/Flexbox
+   instead of Streamlit's per-column min-width enforcement, which caused
+   most of the wrap/alignment bugs fought in the old build.
+   ───────────────────────────────────────────────────────────────────── */
+
+:root {
+    --color-accent: #6366f1;
+    --color-accent-bg: #eef2ff;
+    --color-teal: #10b981;
+    --color-teal-bg: #ecfdf5;
+    --color-coral: #ef4444;
+    --color-coral-bg: #fef2f2;
+    --color-amber: #d97706;
+    --color-amber-bg: #fffbeb;
+    --color-blue: #3b82f6;
+    --color-blue-bg: #eff6ff;
+    --color-muted: #94a3b8;
+    --color-muted-bg: #f1f5f9;
+    --color-text: #1e293b;
+    --color-text2: #475569;
+    --color-heading: #0f172a;
+    --color-border: #e2e8f0;
+    --sidebar-bg: #0f172a;
+    --sidebar-border: #1e293b;
+    --sidebar-text: #cbd5e1;
+    --sidebar-text-muted: #94a3b8;
+    --sidebar-width: 248px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Helvetica, Arial, sans-serif;
+    background: #ffffff;
+    color: var(--color-text);
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* ── Shell layout ──────────────────────────────────────────────────── */
+.gs-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+.gs-sidebar {
+    width: var(--sidebar-width);
+    flex-shrink: 0;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    padding: 1.5rem 1rem;
+}
+
+.gs-wordmark {
+    color: #ffffff;
+    font-size: 21.6px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    margin: 0 0 1.5rem 0.5rem;
+}
+.gs-wordmark span { color: #818cf8; }
+
+.gs-nav { display: flex; flex-direction: column; gap: 2px; }
+
+.gs-nav-link {
+    display: block;
+    color: var(--sidebar-text-muted);
+    font-weight: 500;
+    font-size: 15px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border-left: 4px solid transparent;
+    transition: background 0.12s ease;
+}
+.gs-nav-link:hover { background: rgba(255,255,255,0.02); }
+.gs-nav-link.active {
+    background: rgba(255,255,255,0.06);
+    border-left: 4px solid var(--color-accent);
+    border-radius: 0 8px 8px 0;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.gs-main {
+    flex: 1;
+    background: #ffffff;
+    min-width: 0;
+}
+
+.gs-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem 2.5rem 3rem;
+}
+
+/* ── Typography ────────────────────────────────────────────────────── */
+h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: var(--color-heading);
+    letter-spacing: -0.03em;
+}
+h2 { font-size: 17px; font-weight: 600; margin: 0 0 0.5rem; }
+h3 {
+    font-size: 13px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.03em; color: var(--color-text2); margin: 0.4rem 0;
+}
+.subtitle { color: #64748b; font-size: 16px; margin: 0 0 1.5rem; }
+
+/* ── Cards ─────────────────────────────────────────────────────────── */
+.gs-card {
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    padding: 20px;
+}
+
+.gs-card-divider { border-top: 1px solid #f1f5f9; margin-top: 0.9rem; padding-top: 0.9rem; }
+
+/* ── Badges ────────────────────────────────────────────────────────── */
+.gs-badge {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px; margin-bottom: 6px;
+}
+.gs-badge-teal   { background: var(--color-teal-bg);   color: var(--color-teal); }
+.gs-badge-coral  { background: var(--color-coral-bg);  color: var(--color-coral); }
+.gs-badge-amber  { background: var(--color-amber-bg);  color: var(--color-amber); }
+.gs-badge-accent { background: var(--color-accent-bg); color: var(--color-accent); }
+.gs-badge-muted  { background: var(--color-muted-bg);  color: var(--color-muted); }
+.gs-badge-blue   { background: var(--color-blue-bg);   color: var(--color-blue); }
+
+/* ── Overview tool grid ───────────────────────────────────────────────
+   Real CSS Grid, so five cards in a 3+2 layout never wraps unevenly —
+   this is the exact bug class (Streamlit column min-width enforcement)
+   the whole rewrite exists to escape. */
+.gs-tools-row {
+    display: grid;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+.gs-tools-row-3 { grid-template-columns: repeat(3, 1fr); }
+.gs-tools-row-2 { grid-template-columns: repeat(2, 1fr); }
+
+.gs-tool-card {
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.15s ease, transform 0.1s ease;
+}
+.gs-tool-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+.gs-tool-name { font-weight: 700; font-size: 15px; color: var(--color-heading); margin-bottom: 6px; }
+.gs-tool-desc { color: var(--color-text2); font-size: 13px; line-height: 1.55; margin: 0; flex: 1; }
+.gs-tool-link {
+    display: inline-block; margin-top: 0.9rem; font-size: 13px; font-weight: 600;
+    color: var(--color-accent);
+}
+.gs-tool-link:hover { text-decoration: underline; }
+
+@media (max-width: 900px) {
+    .gs-tools-row-3, .gs-tools-row-2 { grid-template-columns: 1fr; }
+}
+
+/* ── Collapsible "How this works" ─────────────────────────────────── */
+.gs-divider { border: none; border-top: 1px solid var(--color-border); margin: 1.75rem 0; }
+.gs-details { border: 1px solid var(--color-border); border-radius: 10px; padding: 0.9rem 1.1rem; }
+.gs-details summary {
+    cursor: pointer; font-weight: 600; font-size: 14px; color: var(--color-heading);
+    list-style: none;
+}
+.gs-details summary::-webkit-details-marker { display: none; }
+.gs-details summary::before { content: "▸ "; color: var(--color-muted); }
+.gs-details[open] summary::before { content: "▾ "; }
+.gs-details-body { margin-top: 0.8rem; font-size: 13.5px; line-height: 1.65; color: var(--color-text2); }
+.gs-details-body p { margin: 0 0 0.9rem; }
+.gs-details-body p:last-child { margin-bottom: 0; }
+
+/* ── First Response: category grid ────────────────────────────────── */
+.fr-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.85rem;
+    margin: 1.5rem 0 1rem;
+}
+@media (max-width: 1000px) { .fr-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px)  { .fr-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.fr-cat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 16px 14px;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.05s ease;
+}
+.fr-cat-card:hover { border-color: var(--color-accent); box-shadow: 0 2px 8px rgba(99,102,241,0.12); }
+.fr-cat-card:active { transform: scale(0.98); }
+.fr-cat-card.selected { border-color: var(--color-accent); background: var(--color-accent-bg); }
+.fr-cat-icon { font-size: 20px; }
+.fr-cat-name { font-weight: 700; font-size: 13.5px; color: var(--color-heading); }
+.fr-cat-tag { font-size: 11px; color: var(--color-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+
+.fr-loading {
+    display: none;
+    color: var(--color-muted);
+    font-size: 13px;
+    padding: 0.5rem 0;
+}
+.htmx-request .fr-loading,
+.fr-loading.htmx-request { display: block; }
+
+/* ── First Response: result panel ─────────────────────────────────── */
+.fr-result-card {
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 24px 26px;
+    margin-top: 0.5rem;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+.fr-result-header { margin-bottom: 1.1rem; }
+.fr-vp-question {
+    font-size: 19px; font-weight: 700; color: var(--color-heading);
+    margin: 0.4rem 0 0; font-style: italic;
+}
+
+.fr-transcript { display: flex; flex-direction: column; gap: 10px; margin-bottom: 0.5rem; }
+.fr-transcript-item {
+    background: #f8fafc; border: 1px solid var(--color-border); border-radius: 8px;
+    padding: 12px 14px;
+}
+.fr-q-label {
+    display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.04em; color: var(--color-muted); margin-bottom: 4px;
+}
+.fr-q { font-size: 13.5px; color: var(--color-text); margin-bottom: 6px; }
+.fr-a { font-size: 13.5px; color: var(--color-accent); font-weight: 600; }
+
+.fr-pending {
+    background: var(--color-accent-bg); border: 1px dashed var(--color-accent);
+    border-radius: 8px; padding: 12px 14px; font-size: 13.5px; color: var(--color-text);
+    margin: 6px 0 1rem;
+}
+
+.gs-agent-card {
+    border: 1px solid var(--color-border); border-radius: 10px; padding: 18px 20px;
+    margin: 1rem 0; background: #fff; line-height: 1.6; font-size: 13.5px; color: #334155;
+}
+.gs-agent-card strong { display: block; font-size: 15px; color: var(--color-heading); margin-bottom: 8px; line-height: 1.4; }
+.gs-agent-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-muted); margin-bottom: 8px; }
+.fr-pull-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-muted); margin: 14px 0 6px; }
+.fr-pull-steps { margin: 0; padding-left: 18px; }
+.fr-pull-steps li { margin-bottom: 6px; }
+.fr-handoff-line { color: var(--color-text2); font-size: 13px; margin: 10px 0; }
+.fr-handoff-btn {
+    display: inline-block; background: var(--color-accent); color: #fff !important;
+    font-weight: 600; font-size: 13px; padding: 9px 16px; border-radius: 6px; margin: 6px 0 4px;
+}
+.fr-handoff-btn:hover { background: #4f46e5; }
+.fr-reply-draft { background: #f8fafc; border: 1px solid var(--color-border); border-radius: 8px; padding: 10px 12px; margin-top: 12px; }
+.fr-reply-text { font-size: 13px; color: var(--color-text); font-style: italic; }
+
+.fr-back-link {
+    display: inline-block; margin-top: 0.4rem; font-size: 13px; font-weight: 600;
+    color: var(--color-muted);
+}
+.fr-back-link:hover { color: var(--color-accent); }
+
+/* ── Coming-soon stub pages ───────────────────────────────────────── */
+.gs-stub { text-align: center; padding: 4rem 1rem; }
+.gs-stub h1 { margin-top: 0.6rem; }

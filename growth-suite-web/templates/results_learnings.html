@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Results & Learnings · Growth Suite{% endblock %}
+{% block content %}
+
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-6 rounded-xl border border-slate-200 shadow-sm gap-4">
+  <div>
+    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Results &amp; Learnings</h1>
+    <p class="text-sm text-slate-500 mt-0.5">Grade a shipped experiment against the decision rule it committed to, and keep a running log of what was learned.</p>
+  </div>
+  <div class="flex flex-col">
+    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Scope context</span>
+    <select name="brand_id" id="results-brand-select"
+            hx-get="/results-learnings/for-brand" hx-trigger="change" hx-target="#results-body" hx-swap="innerHTML"
+            class="text-xs bg-slate-50 border border-slate-200 rounded-md p-1.5 font-medium text-slate-700 focus:outline-none focus:border-indigo-500">
+      {% for b in brands %}<option value="{{ b.id }}">{{ b.name }}</option>{% endfor %}
+    </select>
+  </div>
+</div>
+
+<div id="results-body">
+  {% include "partials/results_dashboard.html" %}
+</div>
+{% endblock %}

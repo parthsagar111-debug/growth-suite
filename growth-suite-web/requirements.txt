@@ -1,0 +1,13 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+jinja2==3.1.4
+python-dotenv==1.0.1
+python-multipart==0.0.9
+requests==2.32.3
+groq==1.5.0
+pandas==2.2.3
+
+# Optional — only needed once Supabase is wired in (lib/data.py already
+# guards every import with try/except, so the app runs fine without this
+# installed; demo-mode sample data is used instead).
+# supabase

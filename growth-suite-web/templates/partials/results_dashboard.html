@@ -1,0 +1,133 @@
+<!-- Whole-page 7/5 layout: left is the growing stack (grade form → result → log), right is one
+     sticky sidebar (scorecard + insights + CTA) spanning the full page height. Forcing the sidebar
+     split to just the log sub-section (an earlier version of this template) left a short log card
+     next to a tall insights card — making the WHOLE right side sticky instead fixes it structurally. -->
+<div class="mt-3 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+  <!-- Left 7/12 — action + growing history -->
+  <div class="lg:col-span-7 flex flex-col gap-6">
+    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+      <h3 class="text-sm font-semibold text-slate-800">Grade an outcome</h3>
+      <p class="text-xs text-slate-500 mt-1">This step is deliberately not AI — the verdict is computed by comparing your actual numbers against the thresholds already agreed to in Experiment Designer.</p>
+
+      {% if experiments %}
+      <form class="mt-4" hx-post="/results-learnings/grade" hx-target="#grade-result" hx-swap="innerHTML">
+        <input type="hidden" name="brand_id" value="{{ brand_id }}">
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-500 mb-1">Which experiment?</label>
+          <select name="experiment_id" class="w-full max-w-md rounded-lg border border-slate-200 px-3 py-1.5 text-sm">
+            {% for e in experiments %}
+            <option value="{{ e.id }}">{{ e.hypothesis[:70] }}{% if e.hypothesis|length > 70 %}…{% endif %} · {{ (e.created_at|string)[:10] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mt-3 flex flex-wrap items-end gap-3">
+          <div class="w-[92px] shrink-0">
+            <label class="block text-[11px] font-semibold text-slate-500 mb-1">M2 lift (pp)</label>
+            <input type="number" step="0.1" name="lift" value="3.4" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm">
+          </div>
+          <div class="w-[92px] shrink-0">
+            <label class="block text-[11px] font-semibold text-slate-500 mb-1">Opt-out Δ (pp)</label>
+            <input type="number" step="0.1" name="optout" value="0.3" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm">
+          </div>
+          <div class="w-[92px] shrink-0">
+            <label class="block text-[11px] font-semibold text-slate-500 mb-1">Support Δ</label>
+            <input type="number" name="support" value="0" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm">
+          </div>
+          <button type="submit" class="shrink-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-lg transition">Grade this experiment</button>
+        </div>
+      </form>
+      {% else %}
+      <div class="mt-4">
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-50 text-slate-500 text-[12px] font-semibold px-2.5 py-1">✓ No experiments for this brand yet — generate one in Experiment Designer first</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <div>
+      <div class="flex items-center gap-3 mb-3">
+        <span class="text-[10.5px] font-bold uppercase tracking-wide text-slate-400">Result</span>
+        <div class="h-px flex-1 bg-slate-200"></div>
+      </div>
+      <div id="grade-result"></div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+      <h3 class="text-[11px] font-bold uppercase tracking-wide text-slate-400 border-b border-slate-100 pb-3 mb-4">Learnings log</h3>
+      {% if history %}
+      <div class="space-y-3">
+        {% for h in history %}
+        <div class="rounded-lg border border-slate-200 bg-white p-4 flex items-center gap-3">
+          <span class="text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full border {{ verdict_style.get(h.verdict, 'bg-slate-50 text-slate-600 border-slate-200') }}">{{ h.verdict }}</span>
+          <span class="text-[12.5px] text-slate-500">{{ h.date }} · {{ h.brand }} · lift {{ h.lift_pp }}pp</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 px-10 py-10 text-center">
+        <p class="text-sm text-slate-400">No graded experiments for this brand yet.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right 5/12 — one sticky sidebar for the full page: scorecard + insights + CTA -->
+  <div class="lg:col-span-5 lg:sticky lg:top-24 bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+    <h3 class="text-[11px] font-bold uppercase tracking-wide text-slate-400 border-b border-slate-100 pb-3 mb-4">Executive scorecard</h3>
+    <div class="grid grid-cols-3 gap-3 text-center mb-5">
+      <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg"><span class="text-[9.5px] font-bold text-slate-400 block uppercase tracking-wide">Graded</span><span class="text-lg font-bold text-slate-900 block mt-0.5">{{ total_graded }}</span></div>
+      <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg"><span class="text-[9.5px] font-bold text-slate-400 block uppercase tracking-wide">Win rate</span><span class="text-lg font-bold text-slate-900 block mt-0.5">{{ win_rate }}%</span></div>
+      <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg"><span class="text-[9.5px] font-bold text-slate-400 block uppercase tracking-wide">Cum. lift</span><span class="text-lg font-bold {% if cum_impact > 0 %}text-emerald-700{% elif cum_impact < 0 %}text-rose-700{% else %}text-slate-900{% endif %} block mt-0.5">{{ cum_impact }}pp</span></div>
+    </div>
+
+    <div class="flex items-center space-x-2 mb-4">
+      <span class="p-1.5 bg-indigo-50 border border-indigo-100 rounded text-indigo-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 01-2 2h0a2 2 0 01-2-2v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></span>
+      <h3 class="text-sm font-semibold tracking-wide text-slate-800">Pattern recognition</h3>
+    </div>
+    <p class="text-xs text-slate-600 leading-relaxed p-3 bg-slate-50 rounded-lg border border-slate-200/60 font-medium text-slate-800">{{ narrative.pattern_recognition }}</p>
+
+    <div class="mt-4 pt-3 border-t border-slate-100">
+      <div class="text-[10.5px] font-bold uppercase tracking-wide text-slate-400 mb-2">Verdict distribution</div>
+      <div class="flex h-5 rounded-md overflow-hidden bg-slate-100">
+        {% if total_graded %}
+        {% if verdict_distribution.SHIP %}<div class="bg-emerald-500" style="width: {{ (verdict_distribution.SHIP / total_graded * 100)|round(1) }}%"></div>{% endif %}
+        {% if verdict_distribution.EXTEND %}<div class="bg-amber-500" style="width: {{ (verdict_distribution.EXTEND / total_graded * 100)|round(1) }}%"></div>{% endif %}
+        {% if verdict_distribution.KILL %}<div class="bg-rose-500" style="width: {{ (verdict_distribution.KILL / total_graded * 100)|round(1) }}%"></div>{% endif %}
+        {% endif %}
+      </div>
+      <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-500">
+        <span><span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1"></span>SHIP {{ verdict_distribution.SHIP }}</span>
+        <span><span class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1"></span>EXTEND {{ verdict_distribution.EXTEND }}</span>
+        <span><span class="inline-block w-2 h-2 rounded-full bg-rose-500 mr-1"></span>KILL {{ verdict_distribution.KILL }}</span>
+      </div>
+    </div>
+
+    <div class="mt-4 pt-3 border-t border-slate-100">
+      <div class="text-[10.5px] font-bold uppercase tracking-wide text-slate-400 mb-2">Recurring learning themes</div>
+      {% if themes %}
+      <div class="space-y-2">
+        {% for t in themes %}
+        <div>
+          <div class="flex justify-between text-[11.5px] font-medium text-slate-600 mb-1"><span>{{ t.theme }}</span><span class="font-bold text-slate-900">{{ t.count }}</span></div>
+          <div class="w-full bg-slate-100 h-4 rounded-md overflow-hidden"><div class="h-full bg-indigo-500" style="width: {{ t.pct }}%"></div></div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-50 text-slate-500 text-[11.5px] font-semibold px-2.5 py-1">✓ No recurring themes yet — need more graded experiments</span>
+      {% endif %}
+    </div>
+
+    <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400 flex items-center justify-between">
+      <span>Engine: deterministic</span><span>Demo fixture</span>
+    </div>
+
+    <div class="mt-4 pt-3 border-t border-slate-100 space-y-2.5">
+      <p class="text-[12px] text-slate-500 leading-relaxed">Loop back to a fresh diagnosis to keep the flywheel turning — every grade here sharpens the next Experiment Designer run's Similar-Experiment Analyst.</p>
+      <a href="/funnel-diagnostics" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-[13px] rounded-lg shadow-sm transition-colors">
+        Start a new diagnosis
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      </a>
+    </div>
+  </div>
+</div>

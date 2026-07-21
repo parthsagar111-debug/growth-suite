@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_tool_card.html" import tool_card %}
+{% block title %}Growth Suite{% endblock %}
+{% block content %}
+<h1 class="text-[28px] font-bold tracking-tight text-slate-900">Growth Suite</h1>
+<p class="mt-1.5 text-[15px] text-slate-500 max-w-2xl">Triage the question, diagnose your conversion funnel, design targeted fixes, test improvements, and preserve workspace history — all under one roof.</p>
+
+<div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+  {% for tool in tools_row1 %}{{ tool_card(tool) }}{% endfor %}
+  {% for tool in tools_row2 %}{{ tool_card(tool) }}{% endfor %}
+</div>
+
+<details class="group mt-8 rounded-xl border border-slate-200 bg-white px-5 py-4 open:pb-5">
+  <summary class="flex items-center justify-between cursor-pointer select-none list-none">
+    <span class="text-sm font-semibold text-slate-700">How this works</span>
+    <svg class="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+  </summary>
+  <div class="mt-3 space-y-3 text-[13.5px] leading-relaxed text-slate-500">
+    <p>Every number on every page is computed by deterministic code — cohort math, z-test sample sizes, trigger-day rules — never guessed by a model. AI's job is layered on top: multiple named agents per tool interpret, compare, and narrate those numbers, and every tool shows its full dashboard before showing a recommendation.</p>
+    <p>The one deliberate exception is grading: when an experiment ships and real results come in, the SHIP/KILL/EXTEND call is made by comparing actuals against the thresholds you already committed to — by code, not by a model.</p>
+    <p>First Response is the one exception to the pattern above — no data upload, no shared memory, just a branching diagnostic chat (max 5 questions, strict-mode branching) that tells you what to check before you touch the other four tools.</p>
+  </div>
+</details>
+{% endblock %}

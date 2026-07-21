@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Growth Suite — First Response</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+      },
+    },
+  };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.12/htmx.min.js"></script>
+<style>
+  html { scroll-behavior: smooth; }
+  ::selection { background: #e0e7ff; }
+  .fr-cat-card.selected { border-color: #6366f1; background: #eef2ff; }
+  .htmx-indicator { opacity: 0; transition: opacity 120ms ease; }
+  .htmx-request.htmx-indicator, .htmx-request .htmx-indicator { opacity: 1; }
+</style>
+</head>
+<body class="antialiased font-sans bg-white text-slate-900">
+
+<!-- ══════════════════════ Top nav (single bar — no sidebar) ══════════════════════ -->
+<header class="w-full bg-indigo-600">
+  <div class="max-w-7xl mx-auto px-8 h-16 flex items-center justify-between gap-8">
+    <div class="flex items-center gap-8 min-w-0">
+      <span class="text-lg font-bold tracking-tight text-white shrink-0">Growth<span class="text-indigo-200">Suite</span></span>
+      <nav class="flex items-center gap-1 overflow-x-auto">
+        <a href="/" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-100 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+          Overview
+        </a>
+        <a href="/first-response" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-white/15 whitespace-nowrap">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.42-4.03 8-9 8-1.5 0-2.9-.32-4.13-.9L3 20l1.2-3.6A7.94 7.94 0 0 1 3 12c0-4.42 4.03-8 9-8s9 3.58 9 8Z"/></svg>
+          First Response
+        </a>
+        <a href="/funnel-diagnostics" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-100 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 8.5v6.2l-4 2.1v-8.3L3 4Z"/></svg>
+          Funnel Diagnostics
+        </a>
+        <a href="/lifecycle-architect" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-100 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3Z"/><path d="M9 7v13M15 4v13"/></svg>
+          Lifecycle Architect
+        </a>
+        <a href="/experiment-designer" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-100 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v5.7L4.6 18a1.9 1.9 0 0 0 1.65 2.85h11.5A1.9 1.9 0 0 0 19.4 18L14 8.7V3"/><path d="M7.5 14.5h9"/></svg>
+          Experiment Designer
+        </a>
+        <a href="/results-learnings" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-100 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+          Results &amp; Learnings
+        </a>
+      </nav>
+    </div>
+    <span class="hidden lg:inline-flex items-center gap-1.5 rounded-full bg-white/15 text-white text-xs font-medium px-2.5 py-1 shrink-0">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>
+      Live · Demo data
+    </span>
+  </div>
+</header>
+
+<!-- ══════════════════════ Main — full width, white ══════════════════════ -->
+<main class="bg-white">
+  <div class="max-w-7xl mx-auto px-8 py-10">
+
+    <h1 class="text-[28px] font-bold tracking-tight text-slate-900">First Response</h1>
+    <p class="mt-1.5 text-[15px] text-slate-500 max-w-2xl">
+      Triage the question first. Pick the metric a stakeholder is asking about — five questions max, deterministic branching, no guessing.
+    </p>
+
+    <div class="mt-5 flex items-start gap-3 rounded-xl border border-indigo-100 bg-indigo-50/60 px-4 py-3.5">
+      <svg class="w-[18px] h-[18px] mt-0.5 text-indigo-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+      <p class="text-[13px] leading-relaxed text-indigo-900">
+        Every category below runs the same tree: a boring-cause check first, then narrowing questions, then a hypothesis with concrete next steps to pull — and it hands off to Funnel Diagnostics or Experiment Designer only when the case genuinely warrants it.
+      </p>
+    </div>
+
+    <!-- Category grid -->
+    <div class="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" id="fr-grid">
+      <button type="button" class="fr-cat-card group flex flex-col items-start gap-1.5 rounded-xl border border-slate-200 bg-white p-4 text-left hover:border-indigo-300 hover:bg-indigo-50/40 hover:shadow-sm transition-all duration-150"
+              hx-get="/first-response/category/page_views" hx-target="#fr-result" hx-swap="innerHTML" hx-indicator="#fr-loading">
+        <span class="text-2xl">📄</span>
+        <span class="text-[13.5px] font-bold text-slate-900">Page Views</span>
+        <span class="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400">Traffic</span>
+      </button>
+      <button type="button" class="fr-cat-card group flex flex-col items-start gap-1.5 rounded-xl border border-slate-200 bg-white p-4 text-left hover:border-indigo-300 hover:bg-indigo-50/40 hover:shadow-sm transition-all duration-150"
+              hx-get="/first-response/category/engagement" hx-target="#fr-result" hx-swap="innerHTML" hx-indicator="#fr-loading">
+        <span class="text-2xl">⏱️</span>
+        <span class="text-[13.5px] font-bold text-slate-900">Engagement</span>
+        <span class="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400">Time / Bounce</span>
+      </button>
+      <button type="button" class="fr-cat-card group flex flex-col items-start gap-1.5 rounded-xl border border-slate-200 bg-white p-4 text-left hover:border-indigo-300 hover:bg-indigo-50/40 hover:shadow-sm transition-all duration-150"
+              hx-get="/first-response/category/conversion" hx-target="#fr-result" hx-swap="innerHTML" hx-indicator="#fr-loading">
+        <span class="text-2xl">🎯</span>
+        <span class="text-[13.5px] font-bold text-slate-900">Conversion</span>
+        <span class="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400">PDP→Cart</span>
+      </button>
+      <button type="button" class="fr-cat-card group flex flex-col items-start gap-1.5 rounded-xl border border-slate-200 bg-white p-4 text-left hover:border-indigo-300 hover:bg-indigo-50/40 hover:shadow-sm transition-all duration-150"
+              hx-get="/first-response/category/revenue" hx-target="#fr-result" hx-swap="innerHTML" hx-indicator="#fr-loading">
+        <span class="text-2xl">💰</span>
+        <span class="text-[13.5px] font-bold text-slate-900">Revenue</span>
+        <span class="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400">GMV</span>
+      </button>
+      <button type="button" class="fr-cat-card group flex flex-col items-start gap-1.5 rounded-xl border border-slate-200 bg-white p-4 text-left hover:border-indigo-300 hover:bg-indigo-50/40 hover:shadow-sm transition-all duration-150"
+              hx-get="/first-response/category/repeat_rate" hx-target="#fr-result" hx-swap="innerHTML" hx-indicator="#fr-loading">
+        <span class="text-2xl">🔁</span>
+        <span class="text-[13.5px] font-bold text-slate-900">Repeat Rate</span>
+        <span class="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400">Retention</span>
+      </button>
+      <button type="button" class="fr-cat-card group flex flex-col items-start gap-1.5 rounded-xl border border-slate-200 bg-white p-4 text-left hover:border-indigo-300 hover:bg-indigo-50/40 hover:shadow-sm transition-all duration-150"
+              hx-get="/first-response/category/aov" hx-target="#fr-result" hx-swap="innerHTML" hx-indicator="#fr-loading">
+        <span class="text-2xl">🧾</span>
+        <span class="text-[13.5px] font-bold text-slate-900">AOV</span>
+        <span class="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400">Order Value</span>
+      </button>
+      <button type="button" class="fr-cat-card group flex flex-col items-start gap-1.5 rounded-xl border border-slate-200 bg-white p-4 text-left hover:border-indigo-300 hover:bg-indigo-50/40 hover:shadow-sm transition-all duration-150"
+              hx-get="/first-response/category/cart_abandon" hx-target="#fr-result" hx-swap="innerHTML" hx-indicator="#fr-loading">
+        <span class="text-2xl">🛒</span>
+        <span class="text-[13.5px] font-bold text-slate-900">Cart Abandon</span>
+        <span class="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400">Checkout</span>
+      </button>
+      <button type="button" class="fr-cat-card group flex flex-col items-start gap-1.5 rounded-xl border border-slate-200 bg-white p-4 text-left hover:border-indigo-300 hover:bg-indigo-50/40 hover:shadow-sm transition-all duration-150"
+              hx-get="/first-response/category/search_conv" hx-target="#fr-result" hx-swap="innerHTML" hx-indicator="#fr-loading">
+        <span class="text-2xl">🔍</span>
+        <span class="text-[13.5px] font-bold text-slate-900">Search Conv.</span>
+        <span class="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400">On-site Search</span>
+      </button>
+      <button type="button" class="fr-cat-card group flex flex-col items-start gap-1.5 rounded-xl border border-slate-200 bg-white p-4 text-left hover:border-indigo-300 hover:bg-indigo-50/40 hover:shadow-sm transition-all duration-150"
+              hx-get="/first-response/category/payment_success" hx-target="#fr-result" hx-swap="innerHTML" hx-indicator="#fr-loading">
+        <span class="text-2xl">💳</span>
+        <span class="text-[13.5px] font-bold text-slate-900">Payment Success</span>
+        <span class="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400">Funnel</span>
+      </button>
+      <button type="button" class="fr-cat-card group flex flex-col items-start gap-1.5 rounded-xl border border-slate-200 bg-white p-4 text-left hover:border-indigo-300 hover:bg-indigo-50/40 hover:shadow-sm transition-all duration-150"
+              hx-get="/first-response/category/performance" hx-target="#fr-result" hx-swap="innerHTML" hx-indicator="#fr-loading">
+        <span class="text-2xl">⚡</span>
+        <span class="text-[13.5px] font-bold text-slate-900">Performance</span>
+        <span class="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400">Load Time</span>
+      </button>
+    </div>
+
+    <!-- Loading indicator -->
+    <div id="fr-loading" class="htmx-indicator mt-4 flex items-center gap-2 text-[13px] text-slate-400">
+      <svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5" stroke-opacity="0.2"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+      Running the diagnostic…
+    </div>
+
+    <!-- Result panel: real backend swaps content in here via HTMX -->
+    <div id="fr-result" class="mt-2">
+      <div class="mt-6 rounded-xl border border-dashed border-slate-300 bg-slate-50/60 px-10 py-14 text-center">
+        <p class="text-sm text-slate-400">Select a category above to see its diagnostic walkthrough.</p>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  // Visual "selected" state — purely cosmetic, doesn't affect the HTMX
+  // request itself. Cleared and re-applied on every category click.
+  document.getElementById('fr-grid').addEventListener('click', function (e) {
+    var card = e.target.closest('.fr-cat-card');
+    if (!card) return;
+    this.querySelectorAll('.fr-cat-card').forEach(function (c) { c.classList.remove('selected'); });
+    card.classList.add('selected');
+  });
+</script>
+
+</body>
+</html>

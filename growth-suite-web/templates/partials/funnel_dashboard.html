@@ -1,0 +1,133 @@
+<div class="mt-3 space-y-6">
+
+  {% if is_real_data %}
+  <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[13px] text-emerald-700 flex items-center gap-2">
+    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    Charts and numbers below are computed from your real upload for <strong>{{ brand_name }}</strong> — not demo data.
+  </div>
+  {% endif %}
+  {% if note %}
+  <p class="text-[12.5px] text-slate-400 -mb-2">{{ note }}</p>
+  {% endif %}
+
+  <!-- 7/5 split: left is the quantitative data stack, right merges Diagnostic Synthesis + Ranked
+       Playbook + CTA into one panel. Equal-height (grid default stretch) with justify-between across
+       the panel's content groups so any extra height spreads as breathing room, not one dead gap —
+       both sides here carry comparable content weight (this is the "two panels" case, not a
+       sidebar-vs-feed case like Lifecycle Architect). Cohort heatmap and the separate Ranked Playbook
+       section were the two things this page didn't need duplicated or full-width. -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <div class="lg:col-span-7 space-y-6">
+      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <h3 class="text-sm font-semibold tracking-wide text-slate-800 mb-6">Attribution funnel volume &amp; drop-offs</h3>
+        <div class="space-y-4">
+          {% for s in funnel_stages %}
+          <div>
+            <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+              <span>{{ loop.index }}. {{ s.stage }}</span>
+              <span class="font-bold text-slate-900">{{ "{:,}".format(s.value) }}{% if s.step_drop_pct is not none %} <span class="text-slate-400 font-normal">(-{{ s.step_drop_pct }}%)</span>{% endif %}</span>
+            </div>
+            <div class="w-full bg-slate-100 h-6 rounded-md overflow-hidden">
+              <div class="h-full {% if loop.last %}bg-emerald-500{% else %}bg-indigo-500{% endif %}" style="width: {{ s.pct }}%"></div>
+            </div>
+          </div>
+          {% endfor %}
+
+          {% if last_stage and first_stage %}
+          <div class="p-3 bg-rose-50 border border-rose-100 rounded-lg flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center space-x-2 text-xs text-rose-700 font-medium">
+              <span class="h-2 w-2 rounded-full bg-rose-500 animate-pulse shrink-0"></span>
+              <span>Steepest drop: <strong>{{ funnel_stages|length }}. {{ last_stage.stage }}</strong> is the funnel's weakest point{% if anomalies_count > 0 %} · {{ anomalies_count }} anomaly point(s) flagged{% endif %}</span>
+            </div>
+            <span class="text-xs font-bold text-rose-800 bg-white px-2 py-0.5 rounded border border-rose-200">{{ "{:,}".format(last_stage.value) }} remaining ({{ last_stage.pct }}%)</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Benchmark offset analysis</span>
+          <div class="flex items-baseline space-x-2 mt-1">
+            <span class="text-2xl font-bold {% if retention_gap >= 0 %}text-emerald-600{% else %}text-rose-600{% endif %}">{{ "%.0f"|format(stats.m1_m2_retention * 100) }}%</span>
+            <span class="text-xs text-slate-500">vs {{ stats.benchmark.category_typical }}% category benchmark</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-2">{{ narrative.benchmark_commentary }}</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Discount dependence index</span>
+          <div class="flex items-baseline space-x-2 mt-1">
+            <span class="text-2xl font-bold text-amber-600">{{ "%.0f"|format(stats.discount_dependency * 100) }}%</span>
+            <span class="text-xs text-slate-500">of repeat orders discount-driven</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-2">Median {{ stats.time_to_2nd_order_median_days }} days to second order.</p>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+        <div class="text-[13px] font-semibold text-slate-700 mb-3">Cohort retention heatmap</div>
+        <table class="w-full text-center border-separate" style="border-spacing: 3px;">
+          <thead>
+            <tr>
+              <th class="text-[11px] font-semibold text-slate-400 text-left pb-1"></th>
+              {% for cell in cohorts[0].cells %}<th class="text-[11px] font-semibold text-slate-400 pb-1">{{ cell.label }}</th>{% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in cohorts %}
+            <tr>
+              <td class="text-[12px] font-semibold text-slate-500 text-left pr-2">{{ row.cohort }}</td>
+              {% for cell in row.cells %}
+              <td class="rounded-md py-2.5 text-[12.5px] font-bold text-slate-800" style="background-color: {{ cell.color }};">{{ cell.value }}%</td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right 5/12 — Diagnostic synthesis + Ranked plays + CTA in one card. Benchmark commentary
+         lives only in the stat card above, not repeated here — avoiding the duplicate text the
+         original draft had. -->
+    <div class="lg:col-span-5 bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col justify-between">
+      <div class="space-y-5">
+        <div class="flex items-center space-x-2 border-b border-slate-100 pb-3">
+          <span class="p-1.5 bg-indigo-50 border border-indigo-100 rounded text-indigo-600">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 01-2 2h0a2 2 0 01-2-2v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </span>
+          <h3 class="text-sm font-semibold tracking-wide text-slate-800">Diagnostic synthesis</h3>
+        </div>
+
+        <p class="p-3 bg-slate-50 rounded-lg border border-slate-200/60 font-medium text-slate-800 text-xs leading-relaxed">{{ narrative.synthesis }}</p>
+        <p class="text-xs text-slate-600 leading-relaxed">{{ narrative.root_cause }} {{ narrative.segment_insight }}{% if anomalies_count > 0 %} {{ narrative.anomaly_explainer }}{% endif %}</p>
+
+        <div class="space-y-3 pt-1">
+          <span class="text-[10.5px] font-bold uppercase tracking-wide text-slate-400 block">Ranked playbook interventions</span>
+          {% for play in ranked_plays %}
+          <div class="p-3.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+            <div class="flex justify-between items-center gap-2">
+              <span class="text-[13px] font-bold text-slate-900">{{ loop.index }}. {{ play.title }}</span>
+              <span class="shrink-0 px-2 py-0.5 rounded text-[10px] font-bold uppercase
+                {% if play.impact == 'High' %}bg-emerald-50 text-emerald-700 border border-emerald-200
+                {% elif play.impact == 'Medium' %}bg-indigo-50 text-indigo-700 border border-indigo-200
+                {% else %}bg-slate-50 text-slate-500 border border-slate-200{% endif %}">{{ play.impact }}</span>
+            </div>
+            <p class="mt-1 text-xs text-slate-500">{{ play.rationale }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="pt-5 mt-5 border-t border-slate-200 space-y-3">
+        <p class="text-[11.5px] text-slate-500 leading-relaxed"><strong class="text-slate-700">Next playbook action:</strong> ground the next tool in this brand's real M1→M2 cliff instead of a category guess.</p>
+        <a href="/lifecycle-architect" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-[13px] rounded-lg shadow-sm transition-colors">
+          Send diagnosis to Lifecycle Architect
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>

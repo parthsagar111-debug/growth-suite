@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ tool_name }} · Growth Suite{% endblock %}
+{% block content %}
+<div class="text-center py-20">
+  <span class="text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-{{ kind }}-50 text-{{ kind }}-600">Coming soon</span>
+  <h1 class="mt-4 text-[28px] font-bold tracking-tight text-slate-900">{{ tool_name }}</h1>
+  <p class="mt-1.5 text-[15px] text-slate-500">This page is being built next — check back shortly.</p>
+  <a href="/" class="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-indigo-600 hover:text-indigo-700">← Back to Overview</a>
+</div>
+{% endblock %}
