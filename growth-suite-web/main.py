@@ -121,10 +121,12 @@ def first_response_clear():
     return HTMLResponse("")
 
 
-# ── First Response: live interactive pilot (Payment Success only) ──────
-# Every other category replays a fixed script (SCENARIOS above); this one
-# really branches — each click determines the next real question, walking
-# LIVE_TREES's graph instead of a pre-written transcript. See lib/live_tree.py.
+# ── First Response: live interactive walkthroughs (all 10 categories) ──
+# Every category now really branches — each click determines the next real
+# question by walking LIVE_TREES's graph instead of replaying a fixed
+# script. SCENARIOS/the /category/{tree_id} route above are left in place,
+# unused by the UI now, in case a fast instant-demo mode is wanted again
+# later. See lib/live_tree.py for the branching content itself.
 
 def _fr_live_parse_path(path: str) -> list[tuple[str, str]]:
     """Parse the accumulated 'node_id=choice;node_id=choice' hidden-field
@@ -176,6 +178,7 @@ def first_response_live_start(request: Request, tree_id: str):
         "current_node_id": root_id,
         "path": "",
         "terminal": None,
+        "redirect": None,
     })
 
 
@@ -194,6 +197,26 @@ def first_response_live_answer(request: Request, tree_id: str, path: str = Form(
     next_id = node["next"].get(choice) if node else None
     transcript = _fr_live_build_transcript(tree, steps)
 
+    # A "redirect_tree" branch (e.g. Conversion's payment-errors check
+    # pointing at Payment Success) ends this tree's graph in a distinct
+    # redirect card rather than splicing two trees' transcripts into one
+    # path — simpler, and still faithful to what the real check says
+    # should happen next: go answer this in the other tree, fresh.
+    if next_id and next_id.startswith("REDIRECT:"):
+        redirect_tree_id = next_id.split(":", 1)[1]
+        redirect_meta = decision_tree.get_tree(redirect_tree_id)
+        return templates.TemplateResponse(request, "partials/fr_live_step.html", {
+            "tree_id": tree_id,
+            "tree_meta": tree_meta,
+            "vp_question": tree["vp_question"],
+            "transcript": transcript,
+            "current_node": None,
+            "current_node_id": None,
+            "path": _fr_live_encode_path(steps),
+            "terminal": None,
+            "redirect": {"tree_id": redirect_tree_id, "name": redirect_meta["name"], "icon": redirect_meta["icon"]},
+        })
+
     if next_id and next_id.startswith("TERMINAL_"):
         return templates.TemplateResponse(request, "partials/fr_live_step.html", {
             "tree_id": tree_id,
@@ -204,6 +227,7 @@ def first_response_live_answer(request: Request, tree_id: str, path: str = Form(
             "current_node_id": None,
             "path": _fr_live_encode_path(steps),
             "terminal": tree["terminals"].get(next_id),
+            "redirect": None,
         })
 
     return templates.TemplateResponse(request, "partials/fr_live_step.html", {
@@ -215,6 +239,7 @@ def first_response_live_answer(request: Request, tree_id: str, path: str = Form(
         "current_node_id": next_id,
         "path": _fr_live_encode_path(steps),
         "terminal": None,
+        "redirect": None,
     })
 
 

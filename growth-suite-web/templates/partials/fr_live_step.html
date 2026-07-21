@@ -69,6 +69,35 @@
     </div>
   </div>
 
+  {% elif redirect %}
+  <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm max-w-3xl">
+    {% if transcript %}
+    <div class="text-[13px] font-semibold text-slate-700 mb-4">Diagnostic transcript</div>
+    <div class="space-y-2.5 mb-6">
+      {% for step in transcript %}
+      <div class="rounded-lg border border-slate-200 px-4 py-3">
+        <div class="text-[10.5px] font-bold uppercase tracking-wide text-slate-400">{{ step.check_label }}</div>
+        <div class="mt-1 text-[13.5px] text-slate-700">{{ step.question }}</div>
+        <div class="mt-1 text-[13.5px] font-semibold text-slate-500">{{ step.answer }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="rounded-lg border-2 border-amber-300 bg-amber-50/60 px-4 py-4">
+      <div class="text-[10.5px] font-bold uppercase tracking-wide text-amber-600 mb-1.5">Wrong tree for this</div>
+      <div class="text-[14px] font-semibold text-slate-800 mb-3.5">This is really a {{ redirect.name }} question — worth answering it there instead of forcing it through this tree.</div>
+      <a href="#" hx-get="/first-response/live/{{ redirect.tree_id }}" hx-target="#fr-result" hx-swap="innerHTML" hx-indicator="#fr-loading"
+         class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 text-white text-[13px] font-semibold px-4 py-2.5 hover:bg-indigo-700 transition-colors">
+        {{ redirect.icon }} Start {{ redirect.name }}
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+    <a href="#" hx-get="/first-response/clear" hx-target="#fr-result" hx-swap="innerHTML" class="mt-5 inline-flex items-center gap-1 text-[13px] font-semibold text-slate-400 hover:text-indigo-600 transition-colors">
+      ← Back to categories
+    </a>
+  </div>
+
   {% else %}
   <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm max-w-3xl">
     {% if transcript %}
