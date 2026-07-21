@@ -216,31 +216,40 @@ SCENARIOS = {
              "branch_note": "blended rate — could just be new-cohort dilution"},
             {"check_label": "Discount dependency",
              "question": "Was a first-order discount reduced or removed recently?",
-             "answer": "Yes, we cut the first-order 20% code down to 10% last month.",
-             "branch_note": "a first-order discount was reduced/removed"},
+             "answer": "No, our first-order discount hasn't changed.",
+             "branch_note": "no discount change"},
+            {"check_label": "CRM/lifecycle disruption",
+             "question": "Was a WhatsApp/email/push campaign paused, or did a CRM tool change or break?",
+             "answer": "No, our lifecycle campaigns are running normally.",
+             "branch_note": "no CRM/lifecycle disruption"},
+            {"check_label": "Time window",
+             "question": "Is the measurement window shorter than your typical repeat-purchase gap?",
+             "answer": "Actually yes — we're measuring at 30 days, but our typical repeat gap is closer to 45.",
+             "branch_note": "measurement window may be too short"},
         ],
-        "stopped_at": 2,
+        "stopped_at": 4,
         "pending_question": None,
         "diagnosis": {
-            "title": "This looks like discount-acquired customers repeating less, not a broad loyalty "
-                      "decline.",
-            "body": ("Discount-acquired customers may simply not be repeating at the rate they used to be "
-                      "subsidized to — a smaller first-order discount changes the customer mix that reaches "
-                      "month two, not necessarily the underlying loyalty of any given customer."),
+            "title": "This looks like a measurement-window issue, not an actual decline in repeat behavior.",
+            "body": ("You're measuring repeat rate at a 30-day window, but the typical gap between a first "
+                      "and second order runs closer to 45 days — a chunk of customers who will repeat "
+                      "simply haven't hit their window yet. The rate isn't down; the clock is just being "
+                      "checked too early."),
             "pull_steps": [
-                "Pull cohort-level repeat rate split by discount code used on order 1, compare pre/post "
-                "the code change",
-                "Run this cohort data through Funnel Diagnostics to separate genuine cohort decline from "
-                "blended dilution",
-                "Check first-order AOV/margin trade-off to confirm the discount cut is working as intended",
+                "Recompute repeat rate using a 45-60 day window instead of 30, and compare",
+                "Pull the actual distribution of days-to-second-order for the last 2-3 cohorts to confirm "
+                "the real gap",
+                "Run the corrected cohort data through Funnel Diagnostics once the window is fixed, to "
+                "rule out a genuine decline underneath",
             ],
             "handoff": {"label": "Funnel Diagnostics", "page": "pages/1_Funnel_Diagnostics.py",
-                        "soft": False, "key": "funnel_diagnostics"},
-            "handoff_line": ("Worth a Funnel Diagnostics pass — cohort-level data will show whether this "
-                              "is genuine or just the discount change working as intended."),
-            "reply_draft": ("Early read: we cut the first-order discount last month, so this probably "
-                             "reflects less-subsidized customers repeating less, not a broad loyalty "
-                             "issue. Pulling cohort-level data to confirm, will follow up shortly."),
+                        "soft": True, "key": "funnel_diagnostics"},
+            "handoff_line": ("Worth a Funnel Diagnostics pass once the window is corrected — cohort-level "
+                              "data will confirm whether this is genuinely a timing artifact or something "
+                              "real underneath."),
+            "reply_draft": ("Early read: we may be measuring repeat rate too early — a 30-day window is "
+                             "shorter than our real ~45-day repeat gap, so some of this may just be "
+                             "timing. Recomputing with a wider window now, will confirm shortly."),
         },
     },
 
@@ -327,30 +336,50 @@ SCENARIOS = {
         "transcript": [
             {"check_label": "Zero-result rate",
              "question": "Has the percentage of searches returning zero results increased?",
-             "answer": "Yes, zero-result rate is up noticeably.",
-             "branch_note": "zero-result rate increased"},
+             "answer": "No, zero-result rate is steady.",
+             "branch_note": "zero-result rate unchanged"},
+            {"check_label": "Ranking/relevance change",
+             "question": "Was the search ranking algorithm, synonym list, or personalization logic "
+                          "changed recently?",
+             "answer": "No, nothing's changed in ranking or relevance logic.",
+             "branch_note": "no ranking/relevance change"},
+            {"check_label": "Query pattern shift",
+             "question": "Has the mix of query types changed — more brand-name searches vs. category "
+                          "searches?",
+             "answer": "No, the query mix looks the same as usual.",
+             "branch_note": "query mix unchanged"},
+            {"check_label": "Autocomplete/typo tolerance",
+             "question": "Any recent change to autocomplete suggestions or fuzzy-match/typo-tolerance "
+                          "settings?",
+             "answer": "No, autocomplete and typo tolerance are unchanged.",
+             "branch_note": "no autocomplete/typo-tolerance change"},
+            {"check_label": "Inventory at top results",
+             "question": "Are the top-ranked results for common queries out of stock?",
+             "answer": "Actually yes — several of our top queries are showing out-of-stock items first.",
+             "branch_note": "top results are out of stock"},
         ],
-        "stopped_at": 1,
+        "stopped_at": 5,
         "pending_question": None,
         "diagnosis": {
-            "title": "This looks like a catalog/inventory sync issue, not a search relevance problem.",
-            "body": ("A rising zero-result rate is most often a catalog/inventory sync issue, or a new "
-                      "query pattern not mapped to any SKU — not a change in how well search understands "
-                      "what people want."),
+            "title": "This looks like an inventory problem wearing a search-relevance costume.",
+            "body": ("Zero-result rate, ranking logic, query mix, and autocomplete are all unchanged — but "
+                      "the top-ranked results for several common queries are currently out of stock. "
+                      "Search is technically doing its job; it's just pointing shoppers at products they "
+                      "can't buy."),
             "pull_steps": [
-                "Pull the top zero-result queries and check if they map to recently out-of-stock or "
-                "delisted SKUs",
-                "Check catalog sync job logs for failures or delays in the affected window",
-                "Spot-check a few zero-result queries manually in live search to confirm they should "
-                "return something",
+                "Pull the top 20 highest-traffic queries and check in-stock status of their top 3 ranked "
+                "results",
+                "Check whether an out-of-stock filter or de-prioritization rule exists in the ranking "
+                "config, and why it isn't suppressing these SKUs",
+                "Loop in inventory/catalog to confirm restock timing for the affected top SKUs",
             ],
             "handoff": None,
-            "handoff_line": ("Not a suite handoff case — yet. This reads as a catalog/sync issue, not a "
-                              "retention or experiment question. If sync logs are clean, it's worth a "
-                              "second pass on ranking logic."),
-            "reply_draft": ("Early read: zero-result rate has spiked, which usually points to a catalog "
-                             "sync issue rather than a relevance problem. Checking sync logs now, will "
-                             "confirm shortly."),
+            "handoff_line": ("Not a suite handoff case — yet. This reads as an inventory/catalog issue, not "
+                              "a relevance or retention problem. If restocking doesn't recover conversion, "
+                              "it's worth a second look at the ranking config's stock-awareness."),
+            "reply_draft": ("Early read: search relevance itself looks fine — the issue is several "
+                             "top-ranked results for common queries are currently out of stock. Pulling "
+                             "the affected SKU list now, will confirm shortly."),
         },
     },
 
@@ -365,29 +394,42 @@ SCENARIOS = {
             {"check_label": "Bank/issuer specific",
              "question": "Within the affected method, is it concentrated on specific banks or card "
                           "issuers?",
-             "answer": "Yes, mostly one specific bank's UPI handle.",
-             "branch_note": "concentrated on specific banks/issuers"},
+             "answer": "No, it's spread across multiple banks, not just one.",
+             "branch_note": "not bank/issuer specific"},
+            {"check_label": "Recent integration change",
+             "question": "Any recent change to payment gateway version, API integration, or tokenization "
+                          "flow?",
+             "answer": "No, nothing's changed on our integration side.",
+             "branch_note": "no recent integration change"},
+            {"check_label": "Fraud/risk rule change",
+             "question": "Was a fraud-detection threshold or risk rule tightened recently, internally or "
+                          "by the gateway?",
+             "answer": "Actually yes — risk flagged and tightened UPI thresholds last week.",
+             "branch_note": "a fraud/risk rule change confirmed"},
         ],
-        "stopped_at": 2,
+        "stopped_at": 4,
         "pending_question": None,
         "diagnosis": {
-            "title": "This looks like a bank-side outage or risk-rule tightening, not a problem on our "
-                      "end.",
-            "body": ("Isolating to one gateway and then one specific bank's UPI handle points to a "
-                      "bank-side outage or a stricter fraud/risk rule on their end, rather than anything "
-                      "in our own payment integration."),
+            "title": "This looks like a tightened fraud rule causing false declines, not a real payment "
+                      "failure.",
+            "body": ("The drop is UPI-specific but spread across banks, not concentrated on one issuer, "
+                      "with no integration change on our side — that points to a fraud/risk threshold "
+                      "tightened last week, likely flagging legitimate transactions as risky rather than a "
+                      "genuine payment problem."),
             "pull_steps": [
-                "Pull UPI success rate filtered to that specific bank/handle, compare to other banks in "
-                "the same window",
-                "Check the gateway's status page or support channel for known issues with that bank",
-                "Reach out to the payment gateway account manager to confirm if it's bank-side",
+                "Pull the false-positive rate on declined UPI transactions from the risk team, not just "
+                "the raw decline rate",
+                "Compare decline reason codes before vs. after the threshold change to confirm the timing",
+                "Ask the gateway/risk team to roll back or loosen the specific rule that changed, on a "
+                "test cohort",
             ],
             "handoff": None,
-            "handoff_line": ("Not a suite handoff case — this is a vendor/infra issue, not a retention or "
-                              "experiment question."),
-            "reply_draft": ("Early read: the payment failures are concentrated on one specific bank's UPI "
-                             "handle, which points to a bank-side issue rather than something on our end. "
-                             "Confirming with the gateway, will update shortly."),
+            "handoff_line": ("Not a suite handoff case — this is a risk/fraud-rule tuning issue, not a "
+                              "retention or experiment question."),
+            "reply_draft": ("Early read: a fraud/risk threshold was tightened on UPI last week, which "
+                             "likely means legitimate transactions are getting falsely declined rather "
+                             "than a real payment issue. Pulling the false-positive rate to confirm, will "
+                             "update shortly."),
         },
     },
 
