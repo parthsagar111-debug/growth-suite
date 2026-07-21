@@ -29,6 +29,7 @@ from fastapi.templating import Jinja2Templates
 from lib import decision_tree, ingest, chart_helpers
 from lib import data as data_lib
 from lib.sample_scenario import SCENARIOS
+from lib.live_tree import LIVE_TREES
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -118,6 +119,103 @@ def first_response_category(request: Request, tree_id: str):
 @app.get("/first-response/clear", response_class=HTMLResponse)
 def first_response_clear():
     return HTMLResponse("")
+
+
+# ── First Response: live interactive pilot (Payment Success only) ──────
+# Every other category replays a fixed script (SCENARIOS above); this one
+# really branches — each click determines the next real question, walking
+# LIVE_TREES's graph instead of a pre-written transcript. See lib/live_tree.py.
+
+def _fr_live_parse_path(path: str) -> list[tuple[str, str]]:
+    """Parse the accumulated 'node_id=choice;node_id=choice' hidden-field
+    string back into an ordered list of (node_id, choice) pairs."""
+    steps = []
+    for part in path.split(";"):
+        part = part.strip()
+        if not part or "=" not in part:
+            continue
+        node_id, choice = part.split("=", 1)
+        steps.append((node_id, choice))
+    return steps
+
+
+def _fr_live_encode_path(steps: list[tuple[str, str]]) -> str:
+    return ";".join(f"{n}={c}" for n, c in steps)
+
+
+def _fr_live_build_transcript(tree: dict, steps: list[tuple[str, str]]) -> list[dict]:
+    """Turn resolved (node_id, choice) pairs into the same {check_label,
+    question, answer} shape the scripted scenarios use, so fr_live_step.html
+    can share its transcript-rendering markup with fr_result.html's."""
+    transcript = []
+    for node_id, choice in steps:
+        node = tree["nodes"][node_id]
+        option = next((o for o in node["options"] if o["key"] == choice), None)
+        transcript.append({
+            "check_label": node["check_label"],
+            "question": node["question"],
+            "answer": option["label"] if option else choice,
+        })
+    return transcript
+
+
+@app.get("/first-response/live/{tree_id}", response_class=HTMLResponse)
+def first_response_live_start(request: Request, tree_id: str):
+    if tree_id not in LIVE_TREES:
+        return HTMLResponse("<div class='fr-result-card'>No live walkthrough for that category yet.</div>",
+                             status_code=404)
+    tree = LIVE_TREES[tree_id]
+    tree_meta = decision_tree.get_tree(tree_id)
+    root_id = tree["root"]
+    return templates.TemplateResponse(request, "partials/fr_live_step.html", {
+        "tree_id": tree_id,
+        "tree_meta": tree_meta,
+        "vp_question": tree["vp_question"],
+        "transcript": [],
+        "current_node": tree["nodes"][root_id],
+        "current_node_id": root_id,
+        "path": "",
+        "terminal": None,
+    })
+
+
+@app.post("/first-response/live/{tree_id}/answer", response_class=HTMLResponse)
+def first_response_live_answer(request: Request, tree_id: str, path: str = Form(""),
+                                node_id: str = Form(...), choice: str = Form(...)):
+    if tree_id not in LIVE_TREES:
+        return HTMLResponse("<div class='fr-result-card'>No live walkthrough for that category yet.</div>",
+                             status_code=404)
+    tree = LIVE_TREES[tree_id]
+    tree_meta = decision_tree.get_tree(tree_id)
+    steps = _fr_live_parse_path(path)
+    steps.append((node_id, choice))
+
+    node = tree["nodes"].get(node_id)
+    next_id = node["next"].get(choice) if node else None
+    transcript = _fr_live_build_transcript(tree, steps)
+
+    if next_id and next_id.startswith("TERMINAL_"):
+        return templates.TemplateResponse(request, "partials/fr_live_step.html", {
+            "tree_id": tree_id,
+            "tree_meta": tree_meta,
+            "vp_question": tree["vp_question"],
+            "transcript": transcript,
+            "current_node": None,
+            "current_node_id": None,
+            "path": _fr_live_encode_path(steps),
+            "terminal": tree["terminals"].get(next_id),
+        })
+
+    return templates.TemplateResponse(request, "partials/fr_live_step.html", {
+        "tree_id": tree_id,
+        "tree_meta": tree_meta,
+        "vp_question": tree["vp_question"],
+        "transcript": transcript,
+        "current_node": tree["nodes"].get(next_id),
+        "current_node_id": next_id,
+        "path": _fr_live_encode_path(steps),
+        "terminal": None,
+    })
 
 
 # ── Funnel Diagnostics ───────────────────────────────────────────────
